@@ -47,6 +47,8 @@ Construir um MVP demonstrativo para concurso de inovação tecnológica da Terra
 - `compose.yaml` passou em validador YAML; as tags `dunglas/frankenphp:1-php8.4-bookworm` e `postgis/postgis:18-3.6` foram conferidas nas fontes oficiais.
 - Docker não está instalado nesta estação; a criação real dos contêineres e o teste contra PostgreSQL/PostGIS permanecem para uma máquina com Docker.
 - Primeiro marco funcional versionado no commit `b5ae687` (`feat: implementa MVP Terracap Conecta`) e publicado na branch `main` do GitHub.
+- Nesta estação, a porta `8000` já pertence ao CAMP Conecta; a pré-visualização do Terracap Conecta deve usar `http://127.0.0.1:8010`.
+- A execução HTTP local revelou que consultas SQLite com ordenação precisavam de arquivo temporário inacessível ao servidor. O SQLite local passou a usar `temp_store=MEMORY`; página, API e as 35 RAs foram validadas por HTTP na porta 8010.
 
 ## Próximas ações
 
@@ -55,7 +57,7 @@ Construir um MVP demonstrativo para concurso de inovação tecnológica da Terra
 
 ## Acesso local de demonstração
 
-- URL: `http://127.0.0.1:8000/admin`
+- URL nesta estação: `http://127.0.0.1:8010/admin`
 - Usuário local: `admin@terracapconecta.local`
 - A senha fica somente no arquivo `.env` ignorado pelo Git; trocá-la antes de qualquer publicação.
 

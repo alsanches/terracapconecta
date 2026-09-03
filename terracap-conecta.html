@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Terracap Conecta — Mapa Inteligente de Oportunidades do DF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root {
+    --ink: #16261D;
+    --paper: #F1EEDE;
+    --paper-warm: #E8E2C6;
+    --line: #C6C09A;
+    --terracotta: #4F8B52;
+    --rust: #1F4D2E;
+    --ochre: #E0AA2E;
+    --olive: #D8CE7A;
+    --slate: #5B6B73;
+    --muted: #5A6350;
+    --white: #FBFAF3;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Public Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, .display {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  a { color: var(--rust); }
+
+  /* ---------- Header ---------- */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.4rem clamp(1.2rem, 4vw, 3.5rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .brand {
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .brand span { color: var(--terracotta); }
+
+  header nav a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin-left: 1.8rem;
+  }
+  header nav a:hover { color: var(--ink); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: clamp(2.5rem, 6vw, 5rem) clamp(1.2rem, 4vw, 3.5rem) 2rem;
+    max-width: 920px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.1rem, 4.4vw, 3.4rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+
+  .hero p.lede {
+    max-width: 58ch;
+    font-size: 1.08rem;
+    color: var(--muted);
+    margin-top: 1.1rem;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    margin-top: 2.2rem;
+    flex-wrap: wrap;
+  }
+
+  .stat b {
+    display: block;
+    font-family: 'Fraunces', serif;
+    font-size: 1.7rem;
+    font-weight: 500;
+    color: var(--rust);
+  }
+  .stat span {
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  .search-row {
+    margin-top: 2.4rem;
+    display: flex;
+    gap: 0.6rem;
+    max-width: 620px;
+  }
+
+  #searchInput {
+    flex: 1;
+    padding: 0.85rem 1.1rem;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 0.96rem;
+    border: 1px solid var(--ink);
+    background: var(--white);
+    color: var(--ink);
+    border-radius: 3px;
+  }
+  #searchInput::placeholder { color: #9a8f78; }
+
+  #searchBtn {
+    padding: 0.85rem 1.3rem;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    border-radius: 3px;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 0.94rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #searchBtn:hover { background: var(--rust); }
+
+  #searchHint {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 0.55rem;
+    min-height: 1.2em;
+  }
+
+  /* ---------- Map section ---------- */
+  .map-section {
+    padding: 1rem clamp(1.2rem, 4vw, 3.5rem) 3.5rem;
+  }
+
+  .map-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr);
+    gap: 1.4rem;
+    align-items: start;
+  }
+
+  #map {
+    height: 560px;
+    border: 1px solid var(--ink);
+    border-radius: 2px;
+    background: var(--paper-warm);
+  }
+
+  .leaflet-popup-content-wrapper { display: none; } /* using side panel instead */
+
+  .legend-box {
+    margin-top: 0.9rem;
+    border-top: 1px solid var(--line);
+    padding-top: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 1.3rem;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+  .legend-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+
+  .panel {
+    border: 1px solid var(--ink);
+    border-radius: 2px;
+    background: var(--white);
+    padding: 1.6rem;
+    min-height: 560px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-eyebrow {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .panel h2 {
+    font-size: 1.6rem;
+    margin-top: 0.25rem;
+  }
+
+  .tier-badge {
+    display: inline-block;
+    margin-top: 0.7rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--white);
+    width: fit-content;
+  }
+
+  .panel-block {
+    margin-top: 1.3rem;
+    padding-top: 1.1rem;
+    border-top: 1px dashed var(--line);
+  }
+  .panel-block h3 {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: none;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+  .panel-block p { margin: 0; font-size: 0.95rem; }
+  .source-tag {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.76rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .estimate-tag {
+    display: inline-block;
+    margin-top: 0.3rem;
+    font-size: 0.72rem;
+    color: var(--ochre);
+    border: 1px solid var(--ochre);
+    padding: 0.1rem 0.45rem;
+    border-radius: 3px;
+  }
+
+  .panel-empty {
+    margin: auto 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+    text-align: center;
+    padding: 2rem 0.5rem;
+  }
+
+  /* ---------- Lotes em destaque ---------- */
+  .lotes-section {
+    padding: 1rem clamp(1.2rem, 4vw, 3.5rem) 3.5rem;
+    border-top: 1px solid var(--line);
+  }
+  .lotes-section h2 { font-size: 1.7rem; }
+  .lotes-section > p {
+    max-width: 62ch;
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: 0.6rem;
+  }
+
+  .lotes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1.8rem;
+  }
+
+  .lote-card {
+    border: 1px solid var(--ink);
+    border-radius: 2px;
+    background: var(--white);
+    padding: 1.3rem;
+  }
+
+  .lote-card .hyp-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-bottom: 0.6rem;
+  }
+
+  .lote-card h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 1.25rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .lote-card .lote-address {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 0.9rem;
+  }
+
+  .lote-card .lote-meta {
+    display: flex;
+    gap: 1.2rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px dashed var(--line);
+  }
+  .lote-card .lote-meta b { display: block; color: var(--ink); font-size: 0.92rem; }
+
+  .lote-card .rec-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+  }
+  .lote-card .rec-value {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    margin-bottom: 0.7rem;
+  }
+  .lote-card ul {
+    margin: 0 0 1rem;
+    padding-left: 1.1rem;
+    font-size: 0.87rem;
+    color: var(--ink);
+  }
+  .lote-card ul li { margin-bottom: 0.35rem; }
+
+  .lote-card button {
+    width: 100%;
+    padding: 0.6rem;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    border-radius: 3px;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .lote-card button:hover { background: var(--rust); }
+
+  .lote-pin-inner {
+    width: 15px;
+    height: 15px;
+    background: var(--ochre);
+    border: 2px solid var(--ink);
+    transform: rotate(45deg);
+  }
+
+  /* ---------- About section ---------- */
+  .about {
+    padding: 3rem clamp(1.2rem, 4vw, 3.5rem) 4rem;
+    border-top: 1px solid var(--line);
+    max-width: 1000px;
+  }
+
+  .about h2 { font-size: 1.7rem; margin-bottom: 1.4rem; }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2rem;
+  }
+
+  .about-grid h3 {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .about-grid p { font-size: 0.9rem; color: var(--muted); margin: 0; }
+
+  .disclaimer {
+    margin-top: 2.4rem;
+    padding: 1.1rem 1.3rem;
+    background: var(--paper-warm);
+    border-left: 3px solid var(--terracotta);
+    font-size: 0.86rem;
+    color: var(--ink);
+    max-width: 720px;
+  }
+
+  footer {
+    padding: 1.6rem clamp(1.2rem, 4vw, 3.5rem);
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 860px) {
+    .map-wrap { grid-template-columns: 1fr; }
+    #map { height: 420px; }
+    .panel { min-height: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Terracap <span>Conecta</span></div>
+  <nav>
+    <a href="#mapa">Mapa</a>
+    <a href="#lotes">Lotes em destaque</a>
+    <a href="#sobre">Sobre os dados</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h1>Onde no Distrito Federal o seu negócio tem mais chão pra crescer.</h1>
+  <p class="lede">Um protótipo que reúne dados públicos do governo do DF num único mapa, para ajudar quem quer investir ou abrir uma empresa a entender o perfil real de cada região.</p>
+
+  <div class="stat-row">
+    <div class="stat"><b>3.010.881</b><span>habitantes no DF</span></div>
+    <div class="stat"><b>33</b><span>Regiões Administrativas</span></div>
+    <div class="stat"><b>R$ 3.687</b><span>renda domiciliar média (PDAD 2021)</span></div>
+  </div>
+
+  <div class="search-row">
+    <input id="searchInput" type="text" placeholder="Ex: quero abrir um bar — qual região combina?" />
+    <button id="searchBtn">Buscar</button>
+  </div>
+  <div id="searchHint"></div>
+</section>
+
+<section class="map-section" id="mapa">
+  <div class="map-wrap">
+    <div>
+      <div id="map"></div>
+      <div class="legend-box">
+        <strong style="color:var(--ink); font-size:0.82rem;">Grupo de renda:</strong>
+        <div class="legend-item"><span class="legend-dot" style="background:#1F4D2E"></span>Alta</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#4F8B52"></span>Média-alta</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#E0AA2E"></span>Média-baixa</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#D8CE7A"></span>Baixa</div>
+        <div class="legend-item"><span style="display:inline-block; width:10px; height:10px; background:var(--ochre); border:1.5px solid var(--ink); transform:rotate(45deg);"></span>&nbsp;Lote-exemplo</div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel">
+      <div class="panel-empty">Clique em um ponto do mapa, ou busque acima, para ver o perfil da região.</div>
+    </div>
+  </div>
+</section>
+
+<section class="lotes-section" id="lotes">
+  <h2>Lotes em destaque</h2>
+  <p>Três lotes-exemplo, um em cada região, para mostrar como a recomendação de empreendimento apareceria na prática. Endereço, área e zoneamento são ilustrativos — a Terracap Conecta real usaria os lotes de verdade do cadastro imobiliário.</p>
+
+  <div class="lotes-grid" id="lotesGrid"></div>
+</section>
+
+<section class="about" id="sobre">
+  <h2>Sobre os dados deste protótipo</h2>
+  <div class="about-grid">
+    <div>
+      <h3>O que já é dado real</h3>
+      <p>Classificação por grupo de renda e valores citados vêm da PDAD 2021, pesquisa oficial da Codeplan (Companhia de Planejamento do Distrito Federal), que cobre as 33 Regiões Administrativas do DF.</p>
+    </div>
+    <div>
+      <h3>O que ainda é estimativa</h3>
+      <p>As sugestões de segmento de negócio por região são ilustrativas — a versão completa precisa cruzar dados de CNPJ (Receita Federal) e mobilidade (DFTRANS) para virar recomendação confiável.</p>
+    </div>
+    <div>
+      <h3>O que falta integrar</h3>
+      <p>Licitações e imóveis disponíveis da Terracap são dados internos da empresa, que exigem aprovação institucional para entrar na plataforma.</p>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    Este é um protótipo independente, feito com dados públicos, para propor a ideia "Terracap Conecta" — não é um produto oficial da Terracap.
+  </div>
+</section>
+
+<footer>
+  <span>Terracap Conecta — protótipo</span>
+  <span>Fonte dos dados: Codeplan, PDAD 2021 (codeplan.df.gov.br)</span>
+</footer>
+
+<script>
+  const regions = [
+    { name: "Plano Piloto", tier: "Alta", lat: -15.7942, lng: -47.8822,
+      incomeNote: "Integra o grupo de Renda Alta do DF.", segment: "Serviços especializados e alto padrão" },
+    { name: "Lago Sul", tier: "Alta", lat: -15.8267, lng: -47.8455,
+      incomeNote: "Maior renda per capita do Distrito Federal.", segment: "Serviços de alto padrão" },
+    { name: "Águas Claras", tier: "Alta", lat: -15.8367, lng: -48.0142,
+      incomeNote: "Integra o grupo de Renda Alta do DF.", segment: "Serviços e coworking" },
+    { name: "Taguatinga", tier: "Média-alta", lat: -15.8330, lng: -48.0569,
+      incomeNote: "Integra o grupo de Renda Média-alta do DF.", segment: "Comércio, bares e gastronomia" },
+    { name: "Guará", tier: "Média-alta", lat: -15.8256, lng: -47.9786,
+      incomeNote: "Integra o grupo de Renda Média-alta do DF.", segment: "Comércio de bairro" },
+    { name: "Samambaia", tier: "Média-baixa", lat: -15.8752, lng: -48.0906,
+      incomeNote: "Integra o grupo de Renda Média-baixa do DF.", segment: "Comércio popular e serviços essenciais" },
+    { name: "Ceilândia", tier: "Média-baixa", lat: -15.8151, lng: -48.1075,
+      incomeNote: "Integra o grupo de Renda Média-baixa do DF — a RA mais populosa.", segment: "Comércio popular" },
+    { name: "Planaltina", tier: "Baixa", lat: -15.6206, lng: -47.6547,
+      incomeNote: "Renda per capita de R$ 1.309.", segment: "Serviços essenciais" },
+    { name: "Sol Nascente / Pôr do Sol", tier: "Baixa", lat: -15.8095, lng: -48.1367,
+      incomeNote: "Renda per capita de R$ 916.", segment: "Comércio básico" },
+    { name: "SCIA / Estrutural", tier: "Baixa", lat: -15.7797, lng: -48.0592,
+      incomeNote: "Menor renda per capita do DF: R$ 695.", segment: "Serviços essenciais" },
+  ];
+
+  const tierColor = { "Alta": "#1F4D2E", "Média-alta": "#4F8B52", "Média-baixa": "#E0AA2E", "Baixa": "#D8CE7A" };
+
+  const lotes = [
+    {
+      id: "taguatinga",
+      region: "Taguatinga",
+      tier: "Média-alta",
+      lat: -15.8330, lng: -48.0569,
+      address: "Quadra QNA, Lote-exemplo 12",
+      area: "480 m²",
+      zoning: "Uso misto — comercial e serviços",
+      recommendation: "Bar e gastronomia noturna",
+      reasons: [
+        "Região de Renda Média-alta (PDAD 2021), com poder de consumo para gastronomia paga",
+        "Forte tradição comercial e alto fluxo de pessoas no centro de Taguatinga",
+        "Boa conexão viária com outras regiões, ampliando o público-alvo"
+      ]
+    },
+    {
+      id: "aguas-claras",
+      region: "Águas Claras",
+      tier: "Alta",
+      lat: -15.8367, lng: -48.0142,
+      address: "Quadra 100, Lote-exemplo 07",
+      area: "310 m²",
+      zoning: "Comercial — torres de uso misto",
+      recommendation: "Coworking e serviços profissionais",
+      reasons: [
+        "Região de Renda Alta (PDAD 2021), com perfil de profissionais liberais e executivos",
+        "Alta densidade vertical residencial — grande público que trabalha perto de casa",
+        "Proximidade da estação de metrô, favorecendo o acesso de clientes e colaboradores"
+      ]
+    },
+    {
+      id: "planaltina",
+      region: "Planaltina",
+      tier: "Baixa",
+      lat: -15.6206, lng: -47.6547,
+      address: "Setor Comercial, Lote-exemplo 03",
+      area: "600 m²",
+      zoning: "Comercial — comércio de bairro",
+      recommendation: "Comércio popular e serviços essenciais",
+      reasons: [
+        "Renda per capita de R$ 1.309 (PDAD 2021) — indica maior sensibilidade a preço",
+        "Região mais distante dos grandes centros comerciais, com carência de serviços do dia a dia",
+        "Crescimento populacional recente amplia a demanda por comércio de proximidade"
+      ]
+    },
+  ];
+
+  const map = L.map('map', { scrollWheelZoom: false }).setView([-15.79, -47.95], 10.2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  const panel = document.getElementById('panel');
+
+  function showRegion(r) {
+    panel.innerHTML = `
+      <div class="panel-eyebrow">Região Administrativa</div>
+      <h2>${r.name}</h2>
+      <div class="tier-badge" style="background:${tierColor[r.tier]}">Renda ${r.tier}</div>
+
+      <div class="panel-block">
+        <h3>Perfil de renda</h3>
+        <p>${r.incomeNote}</p>
+        <span class="source-tag">Fonte: Codeplan, PDAD 2021</span>
+      </div>
+
+      <div class="panel-block">
+        <h3>Segmento sugerido</h3>
+        <p>${r.segment}</p>
+        <span class="estimate-tag">Estimativa — a validar</span>
+      </div>
+    `;
+  }
+
+  const markers = {};
+  regions.forEach(r => {
+    const marker = L.circleMarker([r.lat, r.lng], {
+      radius: 9,
+      color: '#16261D',
+      weight: 1,
+      fillColor: tierColor[r.tier],
+      fillOpacity: 0.9
+    }).addTo(map);
+    marker.on('click', () => showRegion(r));
+    markers[r.name.toLowerCase()] = marker;
+  });
+
+  function showLote(l) {
+    panel.innerHTML = `
+      <div class="panel-eyebrow">Lote-exemplo · ${l.region}</div>
+      <h2>${l.recommendation}</h2>
+      <div class="tier-badge" style="background:${tierColor[l.tier]}">Renda ${l.tier}</div>
+
+      <div class="panel-block">
+        <h3>Dados do lote</h3>
+        <p>${l.address} · ${l.area} · ${l.zoning}</p>
+        <span class="source-tag">Ilustrativo — não é um lote real da Terracap</span>
+      </div>
+
+      <div class="panel-block">
+        <h3>Por que essa recomendação</h3>
+        <ul style="margin:0; padding-left:1.1rem; font-size:0.9rem;">
+          ${l.reasons.map(r => `<li style="margin-bottom:0.35rem;">${r}</li>`).join('')}
+        </ul>
+        <span class="estimate-tag">Estimativa — a validar com dados de mercado</span>
+      </div>
+    `;
+  }
+
+  const loteIcon = L.divIcon({ className: '', html: '<div class="lote-pin-inner"></div>', iconSize: [19, 19], iconAnchor: [9, 9] });
+  lotes.forEach(l => {
+    const m = L.marker([l.lat, l.lng], { icon: loteIcon }).addTo(map);
+    m.on('click', () => showLote(l));
+  });
+
+  const lotesGrid = document.getElementById('lotesGrid');
+  lotesGrid.innerHTML = lotes.map(l => `
+    <div class="lote-card">
+      <span class="hyp-tag">Lote-exemplo · ilustrativo</span>
+      <h3>${l.region}</h3>
+      <div class="lote-address">${l.address}</div>
+      <div class="lote-meta">
+        <div><b>${l.area}</b>área</div>
+        <div><b>${l.tier}</b>grupo de renda</div>
+      </div>
+      <div class="rec-label">Recomendação de empreendimento</div>
+      <div class="rec-value">${l.recommendation}</div>
+      <ul>${l.reasons.map(r => `<li>${r}</li>`).join('')}</ul>
+      <button data-lote="${l.id}">Ver no mapa</button>
+    </div>
+  `).join('');
+
+  lotesGrid.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const l = lotes.find(x => x.id === btn.dataset.lote);
+      map.flyTo([l.lat, l.lng], 13, { duration: 0.8 });
+      showLote(l);
+      document.getElementById('mapa').scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // simple keyword search over segment text
+  const searchInput = document.getElementById('searchInput');
+  const searchHint = document.getElementById('searchHint');
+
+  function runSearch() {
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q) return;
+    const scored = regions
+      .map(r => ({ r, hit: r.segment.toLowerCase().includes(q) || q.split(' ').some(w => w.length > 3 && r.segment.toLowerCase().includes(w)) }))
+      .filter(x => x.hit);
+
+    if (scored.length > 0) {
+      const best = scored[0].r;
+      map.flyTo([best.lat, best.lng], 12, { duration: 0.8 });
+      showRegion(best);
+      searchHint.textContent = `Melhor correspondência: ${best.name} (segmento estimado: ${best.segment}).`;
+    } else {
+      searchHint.textContent = "Nenhuma correspondência direta no protótipo ainda — explore o mapa manualmente.";
+    }
+  }
+
+  document.getElementById('searchBtn').addEventListener('click', runSearch);
+  searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+</script>
+
+</body>
+</html>

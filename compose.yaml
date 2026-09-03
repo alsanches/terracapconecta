@@ -1,0 +1,75 @@
+name: terracap-conecta
+
+x-app: &app
+  image: terracap-conecta:${APP_IMAGE_TAG:-local}
+  build:
+    context: .
+    dockerfile: Dockerfile
+  env_file:
+    - .env.production
+  restart: unless-stopped
+  depends_on:
+    db:
+      condition: service_healthy
+  volumes:
+    - app-storage:/app/storage/app
+
+services:
+  app:
+    <<: *app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - app-storage:/app/storage/app
+      - caddy-data:/data
+      - caddy-config:/config
+    healthcheck:
+      test: ["CMD", "php", "artisan", "about", "--only=environment"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  queue:
+    <<: *app
+    command: ["php", "artisan", "queue:work", "--sleep=2", "--tries=3", "--timeout=120"]
+
+  scheduler:
+    <<: *app
+    command: ["php", "artisan", "schedule:work"]
+
+  db:
+    image: postgis/postgis:18-3.6
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backup:
+    image: postgis/postgis:18-3.6
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    environment:
+      POSTGRES_HOST: db
+    entrypoint: ["/bin/sh", "/usr/local/bin/backup.sh"]
+    volumes:
+      - ./docker/backup.sh:/usr/local/bin/backup.sh:ro
+      - database-backups:/backups
+
+volumes:
+  app-storage:
+  postgres-data:
+  caddy-data:
+  caddy-config:
+  database-backups:

@@ -1,22 +1,47 @@
 FROM node:22-bookworm-slim AS frontend
 
 WORKDIR /app
+
 COPY package.json package-lock.json vite.config.js ./
 COPY resources ./resources
 COPY public ./public
-RUN npm ci && npm run build
 
-FROM composer:2 AS php-dependencies
+RUN npm ci \
+    && npm run build
+
+
+FROM dunglas/frankenphp:1-php8.4-bookworm AS php-runtime
+
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && install-php-extensions \
+        pdo_pgsql \
+        intl \
+        zip \
+        opcache \
+        pcntl
 
 WORKDIR /app
+
+
+FROM php-runtime AS php-dependencies
+
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --no-progress --prefer-dist --no-scripts
 
-FROM dunglas/frankenphp:1-php8.4-bookworm AS application
+RUN composer install \
+        --no-dev \
+        --no-interaction \
+        --no-progress \
+        --prefer-dist \
+        --no-scripts \
+        --classmap-authoritative \
+    && composer check-platform-reqs --no-dev
 
-RUN install-php-extensions pdo_pgsql intl zip opcache pcntl
+
+FROM php-runtime AS application
 
 WORKDIR /app
+
 COPY . .
 COPY --from=php-dependencies /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
@@ -24,13 +49,21 @@ COPY docker/Caddyfile /etc/frankenphp/Caddyfile
 
 RUN php artisan package:discover --ansi \
     && php artisan filament:upgrade \
-    && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+    && mkdir -p \
+        storage/app/public \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        bootstrap/cache \
+    && rm -rf public/storage \
+    && ln -s ../storage/app/public public/storage \
     && chown -R www-data:www-data storage bootstrap/cache
 
 ENV APP_ENV=production
 ENV APP_DEBUG=false
 ENV SERVER_NAME=:80
 
-EXPOSE 80 443 443/udp
+EXPOSE 80
 
 CMD ["frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile"]

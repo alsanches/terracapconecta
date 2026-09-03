@@ -34,7 +34,6 @@ RUN composer install \
         --no-progress \
         --prefer-dist \
         --no-scripts \
-        --classmap-authoritative \
     && composer check-platform-reqs --no-dev
 
 
@@ -42,12 +41,18 @@ FROM php-runtime AS application
 
 WORKDIR /app
 
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 COPY . .
 COPY --from=php-dependencies /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
 COPY docker/Caddyfile /etc/frankenphp/Caddyfile
 
-RUN php artisan package:discover --ansi \
+RUN composer dump-autoload \
+        --no-dev \
+        --classmap-authoritative \
+        --no-interaction \
+        --no-scripts \
+    && php artisan package:discover --ansi \
     && php artisan filament:upgrade \
     && mkdir -p \
         storage/app/public \

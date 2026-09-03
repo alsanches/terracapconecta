@@ -57,6 +57,8 @@ vendor/bin/pint --test
 npm run build
 ```
 
+Com o banco demonstrativo preparado e o Google Chrome instalado, execute também `npm run test:browser` para verificar carregamento cartográfico, seleção de RA, buscas e experiência móvel.
+
 ## Publicação com Docker
 
 1. Copie `.env.production.example` para `.env.production`.

@@ -49,6 +49,9 @@ Construir um MVP demonstrativo para concurso de inovação tecnológica da Terra
 - Primeiro marco funcional versionado no commit `b5ae687` (`feat: implementa MVP Terracap Conecta`) e publicado na branch `main` do GitHub.
 - Nesta estação, a porta `8000` já pertence ao CAMP Conecta; a pré-visualização do Terracap Conecta deve usar `http://127.0.0.1:8010`.
 - A execução HTTP local revelou que consultas SQLite com ordenação precisavam de arquivo temporário inacessível ao servidor. O SQLite local passou a usar `temp_store=MEMORY`; página, API e as 35 RAs foram validadas por HTTP na porta 8010.
+- Falha de mapa vazio reproduzida em Chrome: o worker separado do MapLibre 6 não era incluído pelo build. Corrigido em `resources/js/map-engine.js` com importação `?worker&url`, compartilhada pelos mapas público e administrativo.
+- Instâncias do mapa ficam fora do estado reativo Alpine; os dados enviados ao worker são objetos não reativos. O seletor administrativo também aguarda o GeoJSON antes de criar o mapa.
+- Validação real em Chrome: contornos e dez marcadores renderizados; três testes Playwright aprovados para clique/retorno ao DF, as três buscas e gaveta móvel. O usuário deve atualizar a página da porta 8010 com Ctrl+F5 após o novo build.
 
 ## Próximas ações
 

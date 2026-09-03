@@ -3,10 +3,12 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "test:browser": "playwright test",
         "build": "vite build",
         "dev": "vite"
     },
     "devDependencies": {
+        "@playwright/test": "^1.62.1",
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",

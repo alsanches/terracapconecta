@@ -46,12 +46,12 @@ Construir um MVP demonstrativo para concurso de inovação tecnológica da Terra
 - Suíte final em 03/09/2026: 13 testes aprovados, 64 asserções, formatação PHP aprovada e build Vite concluído.
 - `compose.yaml` passou em validador YAML; as tags `dunglas/frankenphp:1-php8.4-bookworm` e `postgis/postgis:18-3.6` foram conferidas nas fontes oficiais.
 - Docker não está instalado nesta estação; a criação real dos contêineres e o teste contra PostgreSQL/PostGIS permanecem para uma máquina com Docker.
+- Primeiro marco funcional versionado no commit `b5ae687` (`feat: implementa MVP Terracap Conecta`) e publicado na branch `main` do GitHub.
 
 ## Próximas ações
 
-1. Criar o primeiro commit e publicar a branch `main` no remoto conectado.
-2. Validar a criação real dos contêineres e a migration PostGIS em uma máquina com Docker disponível.
-3. Fazer ensaio visual no navegador/projetor e ajustar conteúdo de apresentação.
+1. Validar a criação real dos contêineres e a migration PostGIS em uma máquina com Docker disponível.
+2. Fazer ensaio visual no navegador/projetor e ajustar conteúdo de apresentação.
 
 ## Acesso local de demonstração
 

@@ -48,6 +48,8 @@ services:
 
   queue:
     <<: *app
+    healthcheck:
+      disable: true
     command:
       - php
       - artisan

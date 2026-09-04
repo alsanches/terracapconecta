@@ -72,6 +72,39 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .maplibregl-ctrl-bottom-left { bottom: 48px; }
 .maplibregl-ctrl-attrib { color: var(--muted) !important; background: rgba(255,253,248,.75) !important; font-size: 9px !important; }
 
+.region-map-label {
+    max-width: 118px;
+    padding: 2px 4px;
+    color: #123f36;
+    font-weight: 800;
+    line-height: 1.05;
+    text-align: center;
+    text-wrap: balance;
+    pointer-events: none;
+    user-select: none;
+    opacity: .92;
+    text-shadow:
+        -1px -1px 0 rgba(255,253,248,.96),
+         1px -1px 0 rgba(255,253,248,.96),
+        -1px  1px 0 rgba(255,253,248,.96),
+         1px  1px 0 rgba(255,253,248,.96),
+         0    2px 3px rgba(20,58,49,.16);
+    transition:
+        color .18s ease,
+        opacity .18s ease,
+        font-weight .18s ease;
+}
+
+.region-map-label.is-muted {
+    opacity: .34;
+}
+
+.region-map-label.is-selected {
+    color: #6d4f12;
+    font-weight: 900;
+    opacity: 1;
+}
+
 .side-panel { position: relative; min-height: 680px; overflow-y: auto; border-left: 1px solid var(--line); background: var(--white); }
 .empty-state { display: flex; flex-direction: column; justify-content: center; min-height: 100%; padding: 48px 42px; }
 .empty-number { color: var(--gold); font: 400 86px/1 Georgia, serif; }

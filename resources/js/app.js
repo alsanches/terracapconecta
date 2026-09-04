@@ -7,6 +7,7 @@ window.Alpine = Alpine;
 
 Alpine.data("terracapMap", () => {
     let map = null;
+    const regionLabelMarkers = new Map();
 
     return {
         mapReady: false,
@@ -135,6 +136,9 @@ Alpine.data("terracapMap", () => {
                         ],
                     },
                 });
+                this.createRegionLabels();
+                map.on("zoom", () => this.updateRegionLabels());
+
                 map.addSource("lots", {
                     type: "geojson",
                     data: this.lotsGeoJson(),
@@ -185,6 +189,74 @@ Alpine.data("terracapMap", () => {
                     this.openLot(event.features[0].properties.id);
                 });
                 this.fitAll();
+            });
+        },
+
+        regionLabelFontSize(zoom) {
+            const minZoom = 8;
+            const maxZoom = 15;
+            const minSize = 9;
+            const maxSize = 17;
+            const clamped = Math.min(maxZoom, Math.max(minZoom, zoom));
+            const progress = (clamped - minZoom) / (maxZoom - minZoom);
+
+            return minSize + (maxSize - minSize) * progress;
+        },
+
+        createRegionLabels() {
+            regionLabelMarkers.forEach(({ marker }) => marker.remove());
+            regionLabelMarkers.clear();
+
+            this.regions.features.forEach((feature) => {
+                const center = feature.properties?.center;
+
+                if (
+                    !Array.isArray(center) ||
+                    center.length < 2 ||
+                    !Number.isFinite(Number(center[0])) ||
+                    !Number.isFinite(Number(center[1]))
+                )
+                    return;
+
+                const element = document.createElement("div");
+                element.className = "region-map-label";
+                element.dataset.region = feature.properties.slug;
+                element.textContent = feature.properties.name;
+
+                const marker = new maplibregl.Marker({
+                    element,
+                    anchor: "center",
+                })
+                    .setLngLat([Number(center[0]), Number(center[1])])
+                    .addTo(map);
+
+                regionLabelMarkers.set(feature.properties.slug, {
+                    marker,
+                    element,
+                });
+            });
+
+            this.updateRegionLabels();
+        },
+
+        updateRegionLabels() {
+            if (!map) return;
+
+            const fontSize = this.regionLabelFontSize(map.getZoom());
+            const selectedSlug = this.selectedRegion?.slug ?? null;
+
+            regionLabelMarkers.forEach(({ element }, slug) => {
+                element.style.fontSize = `${fontSize.toFixed(2)}px`;
+
+                element.classList.toggle(
+                    "is-selected",
+                    slug === selectedSlug,
+                );
+
+                element.classList.toggle(
+                    "is-muted",
+                    selectedSlug !== null && slug !== selectedSlug,
+                );
             });
         },
 
@@ -243,6 +315,8 @@ Alpine.data("terracapMap", () => {
                     },
                 );
             });
+
+            this.updateRegionLabels();
         },
 
         resetMap() {

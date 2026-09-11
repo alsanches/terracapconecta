@@ -5,12 +5,12 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: backup/restauração e checkout de produção validados; atualização controlada do checkout é o próximo passo
-Última etapa validada: checkout da VPS limpo, origem correta, release anterior e capacidade de disco confirmados
-Evidência: HEAD detached em 9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d; origin GitHub correto; sem alterações locais; APP_IMAGE_TAG igual ao release ativo; 64 GB livres
-Commit atual: 4e7d89c
-Ambiente: produção anterior ativa e íntegra; nenhum dado, contêiner ou serviço alterado nesta verificação
-Próxima ação: executar git fetch e checkout detached do SHA publicado; conferir arquivos e então construir a imagem imutável sem ativá-la
+Estado atual: checkout do release novo ainda pendente; produção anterior segue intacta após falha segura do primeiro fetch
+Última etapa validada: tentativa de checkout falhou antes de qualquer alteração, mantendo HEAD e contêineres anteriores
+Evidência: `fatal: unable to read tree` para o commit documental; HEAD permaneceu 9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d
+Commit atual: o arquivo de continuidade segue no GitHub; release funcional fixado em 5b7a51da000b2dc98ad64d70ae4007dd2af64b5e
+Ambiente: produção anterior ativa e íntegra; checkout não foi modificado
+Próxima ação: buscar `origin/main` com profundidade explícita, verificar o SHA funcional e fazer checkout detached de 5b7a51da000b2dc98ad64d70ae4007dd2af64b5e
 Bloqueios: Codex não controla o terminal externo; execução assistida pelo usuário com comandos curtos, sem compartilhar segredos
 ```
 
@@ -24,6 +24,8 @@ Bloqueios: Codex não controla o terminal externo; execução assistida pelo usu
 - Nenhuma migration, seeder ou troca de imagem de produção havia sido executada até este ponto.
 - Checkout da VPS confirmado limpo, sem branch ativa (detached HEAD), no SHA `9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d`; `origin` aponta para o repositório oficial do projeto.
 - `.env.production` mantém `APP_IMAGE_TAG=9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d`; filesystem raiz possui 64 GB livres (33% utilizado).
+- Primeira tentativa de checkout do commit documental `f91e951f055bdc7182e92d01cbf8423722b9650a` falhou com `unable to read tree`, compatível com clone raso/incompleto; HEAD permaneceu no release anterior e nada foi publicado.
+- O release funcional imutável desta evolução é `5b7a51da000b2dc98ad64d70ae4007dd2af64b5e`; commits posteriores alteram apenas `PROJECT_CONTEXT.md` e não precisam compor a imagem.
 
 ## Planejamento aprovado em 11/09/2026
 

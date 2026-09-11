@@ -5,12 +5,12 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: implementação local concluída e validada; revisão e versionamento em execução
-Última etapa validada: interface pública, acessibilidade, build e percurso completo no Chrome
-Evidência: 23 testes PHP/123 asserções; build Vite aprovado; 7 testes Playwright aprovados; mapa com 35 RAs conferido no navegador
-Commit atual: 9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d
+Estado atual: implementação local versionada; preparação segura da produção em execução
+Última etapa validada: commit funcional criado e publicado em origin/main
+Evidência: commit 5b7a51d enviado ao GitHub após 23 testes PHP, build Vite e 7 testes Playwright
+Commit atual: 5b7a51df321ebee1276b42d46601bf568e30510f
 Ambiente: desenvolvimento local; produção existente na VPS compartilhada com o CAMP
-Próxima ação: revisar diff, criar commit de marco e enviar para origin/main
+Próxima ação: inventariar produção sem alterações, registrar imagem atual e gerar backup PostgreSQL validado
 Bloqueios: nenhum conhecido
 ```
 

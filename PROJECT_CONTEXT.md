@@ -5,12 +5,12 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: migration e carga oficial validadas; aplicação ativa ainda permanece na imagem anterior
-Última etapa validada: execução idempotente e conferência direta da carga oficial em produção
-Evidência: OfficialPublicDataSeeder executado duas vezes; 4 editais públicos distintos, 12 lotes no total, 2 históricos oficiais e 1 categoria religiosa em modo catalog; OFFICIAL_DATA_VERIFIED
+Estado atual: imagem candidata ativada em app e queue; validação funcional pública está em execução
+Última etapa validada: ativação isolada dos serviços da aplicação
+Evidência: app saudável e queue em execução na imagem terracap-conecta:231620a0cf72c705f9ea9c54092301bf24a34f02; banco e backup não foram recriados; ACTIVATION_HEALTHY
 Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
-Ambiente: nova imagem disponível; app e queue continuam executando a imagem anterior 9a7b197; banco ainda não migrado
-Próxima ação: apontar APP_IMAGE_TAG para a imagem candidata e recriar somente app e queue, preservando banco e backup
+Ambiente: app e queue executam a nova imagem; PostgreSQL/PostGIS e backup mantêm os contêineres anteriores saudáveis
+Próxima ação: validar saúde, APIs, mapa, editais, catálogo religioso e formulário no caminho público; depois conferir o CAMP Conecta
 Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 ```
 
@@ -37,6 +37,8 @@ Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 - Somente `OfficialPublicDataSeeder` foi executado; uma segunda execução completa foi aprovada (`OFFICIAL_SEEDER_IDEMPOTENT_OK`), comprovando que a carga não duplica os registros.
 - A verificação SQL direta confirmou quatro editais públicos com quatro códigos distintos: `07/2026` em resultado, `11/2026` encerrado, `12/2026` aberto e `CHAMAMENTO-01/2026` aberto.
 - O banco contém 12 lotes, exatamente dois históricos oficiais (`193308-6` e `819340-1`), ambos fracassados e com localização aproximada; a categoria `templos-assistencia-social` existe uma única vez em modo `catalog` (`OFFICIAL_DATA_VERIFIED`).
+- Antes da troca, `.env.production` foi preservado em `.env.production.pre-231620a`; `APP_IMAGE_TAG` passou para o SHA candidato.
+- Somente os serviços `app` e `queue` foram recriados. O app atingiu `healthy` e a fila permaneceu em execução na imagem `terracap-conecta:231620a0cf72c705f9ea9c54092301bf24a34f02` (`ACTIVATION_HEALTHY`). PostgreSQL/PostGIS e o serviço de backup não foram recriados.
 
 ## Planejamento aprovado em 11/09/2026
 

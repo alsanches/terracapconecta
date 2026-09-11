@@ -5,12 +5,12 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: implementação no GitHub; inventário de produção validado e preparação do backup em execução
-Última etapa validada: identificação dos quatro contêineres, diretório Compose e referência exata de rollback
-Evidência: app saudável na tag 9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d e imagem sha256:5b8750493280c94e66210e18731accab5ef27548b947408c270f22bc75ae6053; Compose em /opt/terracap-conecta/compose.production.yaml
-Commit atual: 784c909
+Estado atual: backup anterior à implantação criado e validado; teste de restauração isolada é o próximo portão
+Última etapa validada: pg_dump em formato custom e leitura integral do catálogo por pg_restore
+Evidência: /backups/terracap-conecta-predeploy-20260911T132458Z.dump com 2,6 MB e SHA-256 444dfa6f2cb80618c0a4001165e580ef7526d9210b27ec42d4d8a3581b108836
+Commit atual: 064ade0
 Ambiente: produção anterior ativa na VPS compartilhada, sem alteração realizada nesta etapa
-Próxima ação: gerar backup PostgreSQL manual, validar seu catálogo com pg_restore e registrar tamanho e hash
+Próxima ação: restaurar o dump em banco temporário isolado, conferir extensão/tabelas e remover somente esse banco temporário
 Bloqueios: Codex não controla o terminal externo; execução assistida pelo usuário com comandos curtos, sem compartilhar segredos
 ```
 

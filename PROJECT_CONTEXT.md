@@ -5,13 +5,13 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: implementação local versionada; preparação segura da produção em execução
-Última etapa validada: commit funcional criado e publicado em origin/main
-Evidência: commit 5b7a51d enviado ao GitHub após 23 testes PHP, build Vite e 7 testes Playwright
-Commit atual: 5b7a51df321ebee1276b42d46601bf568e30510f
-Ambiente: desenvolvimento local; produção existente na VPS compartilhada com o CAMP
-Próxima ação: inventariar produção sem alterações, registrar imagem atual e gerar backup PostgreSQL validado
-Bloqueios: nenhum conhecido
+Estado atual: implementação local validada e publicada no GitHub; implantação na VPS aguardando a autenticação da sessão SSH do Codex
+Última etapa validada: usuário comprovou acesso SSH interativo ao host; saúde externa dos dois sistemas preservada
+Evidência: commits 5b7a51d e 2076e36 em origin/main; captura do prompt debian@srv1862758; Terracap /up e CAMP retornam HTTP 200
+Commit atual: 2076e36
+Ambiente: desenvolvimento local validado; produção anterior ativa na VPS compartilhada
+Próxima ação: usuário digitar a senha da chave na aba de terminal inferior do Codex; em seguida inventariar, gerar e validar backup PostgreSQL e registrar a imagem anterior
+Bloqueios: a sessão SSH iniciada pelo Codex aguarda a senha local da chave, que somente o usuário deve digitar
 ```
 
 ## Planejamento aprovado em 11/09/2026
@@ -36,7 +36,7 @@ Bloqueios: nenhum conhecido
 - [VALIDADA] 7. Formulário demonstrativo sem envio ao servidor.
 - [VALIDADA] 8. Comunicação, acessibilidade e responsividade.
 - [VALIDADA] 9. Testes PHP, Vite e Playwright.
-- [PENDENTE] 10. Commit, push, backup, publicação e validação dos dois sistemas.
+- [EM EXECUÇÃO] 10. Commit, push, backup, publicação e validação dos dois sistemas. Git concluído; VPS aguarda autenticação.
 
 ### Decisões de implementação
 

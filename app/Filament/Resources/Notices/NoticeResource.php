@@ -18,6 +18,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Validation\ValidationException;
 
 class NoticeResource extends Resource
 {
@@ -71,5 +72,35 @@ class NoticeResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+    public static function validatePublication(array $data): array
+    {
+        $errors = [];
+
+        if (($data['public_visible'] ?? false) && ! ($data['is_demo'] ?? true)) {
+            if (blank($data['official_page_url'] ?? null)) {
+                $errors['data.official_page_url'] = 'Um edital oficial publicado exige a página oficial da fonte.';
+            }
+            if (blank($data['source_checked_at'] ?? null)) {
+                $errors['data.source_checked_at'] = 'Informe quando a fonte oficial foi conferida.';
+            }
+        }
+
+        if (($data['status'] ?? null) === 'open' && blank($data['proposal_deadline'] ?? null) && blank($data['closes_at'] ?? null) && blank($data['auction_at'] ?? null)) {
+            $errors['data.proposal_deadline'] = 'Um edital aberto exige ao menos um prazo principal.';
+        }
+
+        foreach (['document_url', 'official_page_url', 'proposal_url', 'result_url'] as $field) {
+            if (filled($data[$field] ?? null) && ! str_starts_with($data[$field], 'https://')) {
+                $errors["data.{$field}"] = 'Use um endereço externo HTTPS.';
+            }
+        }
+
+        if ($errors) {
+            throw ValidationException::withMessages($errors);
+        }
+
+        return $data;
     }
 }

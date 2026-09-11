@@ -7,12 +7,29 @@ window.Alpine = Alpine;
 
 Alpine.data("terracapMap", () => {
   let map = null;
+  let noticeTrigger = null;
+  let requestTrigger = null;
   const regionLabelMarkers = new Map();
+  const emptyRequestForm = () => ({
+    name: "",
+    document: "",
+    phone: "",
+    email: "",
+    correspondenceAddress: "",
+    postalCode: "",
+    processNumber: "",
+    text: "",
+    acknowledgement: false,
+  });
 
   return {
     mapReady: false,
     regions: null,
     lots: [],
+    notices: [],
+    noticesLoading: true,
+    noticesError: "",
+    selectedNotice: null,
     visibleLots: [],
     selectedRegion: null,
     selectedLot: null,
@@ -22,12 +39,18 @@ Alpine.data("terracapMap", () => {
     searching: false,
     message: "",
     suggestions: [],
+    requestReceipt: "",
+    requestForm: emptyRequestForm(),
     currency: new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
     }),
 
     async init() {
+      await Promise.allSettled([this.loadMapData(), this.loadNotices()]);
+    },
+
+    async loadMapData() {
       try {
         const [regionsResponse, lotsResponse] = await Promise.all([
           fetch("/api/v1/regions"),
@@ -50,6 +73,23 @@ Alpine.data("terracapMap", () => {
       } finally {
         this.loading = false;
       }
+    },
+
+    async loadNotices() {
+      try {
+        const response = await fetch("/api/v1/notices");
+        if (!response.ok) throw new Error("Não foi possível carregar os editais.");
+        const payload = await response.json();
+        this.notices = payload.data || [];
+      } catch (error) {
+        this.noticesError = error.message;
+      } finally {
+        this.noticesLoading = false;
+      }
+    },
+
+    get currentNoticeCount() {
+      return this.notices.filter((notice) => notice.is_current).length;
     },
 
     createMap() {
@@ -268,7 +308,14 @@ Alpine.data("terracapMap", () => {
           paint: {
             "circle-radius": ["case", ["get", "featured"], 8, 6],
 
-            "circle-color": ["case", ["get", "featured"], "#cba30d", "#00406e"],
+            "circle-color": [
+              "case",
+              ["get", "historical"],
+              "#7a4d96",
+              ["get", "featured"],
+              "#cba30d",
+              "#00406e",
+            ],
 
             "circle-stroke-color": "#ffffff",
 
@@ -431,6 +478,8 @@ Alpine.data("terracapMap", () => {
 
             featured: lot.is_featured,
 
+            historical: !lot.is_demo,
+
             region: lot.region.slug,
           },
         })),
@@ -566,19 +615,21 @@ Alpine.data("terracapMap", () => {
         this.setRegionStates();
 
         if (payload.results?.length) {
-          this.openLot(
-            payload.results[0].lot_id,
-
-            false,
-          );
-
-          map.flyTo({
-            center: payload.results[0].coordinates,
-
-            zoom: 12.2,
-
-            essential: true,
-          });
+          if (payload.mode === "catalog" && payload.results.length > 1) {
+            const bounds = new maplibregl.LngLatBounds();
+            payload.results.forEach((result) => bounds.extend(result.coordinates));
+            this.selectedLot = this.lots.find(
+              (lot) => Number(lot.id) === Number(payload.results[0].lot_id),
+            );
+            map.fitBounds(bounds, { padding: 90, duration: 800, maxZoom: 11.5 });
+          } else {
+            this.openLot(payload.results[0].lot_id, false);
+            map.flyTo({
+              center: payload.results[0].coordinates,
+              zoom: 12.2,
+              essential: true,
+            });
+          }
         } else {
           this.fitAll();
         }
@@ -620,6 +671,64 @@ Alpine.data("terracapMap", () => {
       return this.recommendation?.results?.find(
         (result) => Number(result.lot_id) === Number(id),
       );
+    },
+
+    openNotice(notice, event) {
+      noticeTrigger = event?.currentTarget ?? document.activeElement;
+      this.selectedNotice = notice;
+      this.$nextTick(() => {
+        this.$refs.noticeDialog.showModal();
+        this.$refs.noticeClose.focus();
+      });
+    },
+
+    closeNotice() {
+      this.$refs.noticeDialog.close();
+      this.selectedNotice = null;
+      this.$nextTick(() => noticeTrigger?.focus());
+    },
+
+    openRequest(event) {
+      if (!this.selectedLot) return;
+      requestTrigger = event?.currentTarget ?? document.activeElement;
+      this.requestReceipt = "";
+      this.requestForm = emptyRequestForm();
+      this.$nextTick(() => {
+        this.$refs.requestDialog.showModal();
+        this.$refs.requestName.focus();
+      });
+    },
+
+    simulateRequest() {
+      const timestamp = Date.now().toString(36).toUpperCase();
+      const random = Math.random().toString(36).slice(2, 6).toUpperCase();
+      this.requestReceipt = `SIM-${timestamp}-${random}`;
+      this.$nextTick(() => this.$refs.requestReceipt?.focus());
+    },
+
+    closeRequest() {
+      this.$refs.requestDialog.close();
+      this.requestForm = emptyRequestForm();
+      this.requestReceipt = "";
+      this.$nextTick(() => requestTrigger?.focus());
+    },
+
+    formatDate(value, includeTime = false) {
+      if (!value) return "Não informado";
+      const date = new Date(includeTime ? value : `${value}T12:00:00`);
+      const options = includeTime
+        ? { dateStyle: "short", timeStyle: "short" }
+        : { dateStyle: "short" };
+      return new Intl.DateTimeFormat("pt-BR", options).format(date);
+    },
+
+    noticeStatusLabel(status) {
+      return {
+        open: "Aberto",
+        in_result: "Em resultado",
+        closed: "Encerrado",
+        cancelled: "Cancelado",
+      }[status] || status;
     },
 
     /*

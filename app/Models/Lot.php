@@ -14,8 +14,9 @@ class Lot extends Model
 
     protected $fillable = [
         'administrative_region_id', 'code', 'title', 'address', 'area_sqm', 'zoning',
-        'destination', 'latitude', 'longitude', 'boundary_json', 'status', 'is_demo',
-        'is_featured', 'search_enabled', 'published_at',
+        'destination', 'latitude', 'longitude', 'location_precision', 'boundary_json', 'status',
+        'offer_status', 'source_url', 'source_checked_at', 'is_demo', 'is_featured',
+        'search_enabled', 'published_at',
     ];
 
     protected function casts(): array
@@ -28,6 +29,7 @@ class Lot extends Model
             'is_featured' => 'boolean',
             'search_enabled' => 'boolean',
             'published_at' => 'datetime',
+            'source_checked_at' => 'datetime',
         ];
     }
 

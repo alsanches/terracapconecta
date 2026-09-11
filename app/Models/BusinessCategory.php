@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class BusinessCategory extends Model
 {
-    protected $fillable = ['slug', 'name', 'description', 'aliases', 'weights', 'active'];
+    protected $fillable = ['slug', 'name', 'description', 'result_mode', 'aliases', 'weights', 'active'];
 
     protected function casts(): array
     {

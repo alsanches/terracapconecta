@@ -30,6 +30,8 @@ class LotsTable
                 }),
                 IconColumn::make('is_featured')->label('Destaque')->boolean(),
                 IconColumn::make('search_enabled')->label('Busca')->boolean(),
+                TextColumn::make('offer_status')->label('Situação comercial')->badge(),
+                TextColumn::make('location_precision')->label('Precisão')->badge(),
                 TextColumn::make('published_at')->label('Publicação')->dateTime('d/m/Y H:i')->sortable()->toggleable(),
                 TextColumn::make('created_at')
                     ->dateTime()

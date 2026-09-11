@@ -24,6 +24,7 @@ class RecommendationEngine
         if (! $category) {
             return [
                 'recognized' => false,
+                'mode' => null,
                 'message' => 'Ainda não reconhecemos esse tipo de negócio no protótipo.',
                 'suggestions' => $suggestions,
                 'results' => [],
@@ -38,6 +39,42 @@ class RecommendationEngine
             ->whereHas('lot', fn ($query) => $query->published()->where('search_enabled', true))
             ->with(['lot.region', 'lot.noticeItems.notice'])
             ->get();
+
+        if ($category->result_mode === 'catalog') {
+            $results = $profiles->map(function (LotBusinessProfile $profile) {
+                $lot = $profile->lot;
+                $noticeItem = $lot->noticeItems->first();
+
+                return [
+                    'lot_id' => $lot->id,
+                    'code' => $lot->code,
+                    'title' => $lot->title,
+                    'region' => $lot->region->name,
+                    'coordinates' => [(float) $lot->longitude, (float) $lot->latitude],
+                    'score' => null,
+                    'factors' => [],
+                    'reasons' => $profile->reasons,
+                    'offer_status' => $lot->offer_status,
+                    'source_url' => $lot->source_url,
+                    'is_demo' => $lot->is_demo,
+                    'notice' => $noticeItem ? [
+                        'code' => $noticeItem->notice->code,
+                        'item' => $noticeItem->item_number,
+                        'minimum_price' => $noticeItem->minimum_price !== null ? (float) $noticeItem->minimum_price : null,
+                    ] : null,
+                ];
+            })->sortBy('code')->values()->all();
+
+            return [
+                'recognized' => true,
+                'mode' => 'catalog',
+                'category' => ['slug' => $category->slug, 'name' => $category->name],
+                'message' => count($results).' referência(s) pública(s) histórica(s) encontrada(s), sem cálculo de potencial.',
+                'suggestions' => $suggestions,
+                'results' => $results,
+                'methodology' => 'Catálogo informativo. Estes registros não recebem nota nem representam disponibilidade atual.',
+            ];
+        }
 
         $results = $profiles->map(function (LotBusinessProfile $profile) use ($weights) {
             $lot = $profile->lot;
@@ -75,6 +112,7 @@ class RecommendationEngine
 
         return [
             'recognized' => true,
+            'mode' => 'ranked',
             'category' => ['slug' => $category->slug, 'name' => $category->name],
             'message' => count($results).' oportunidade(s) demonstrativa(s) encontrada(s).',
             'suggestions' => $suggestions,

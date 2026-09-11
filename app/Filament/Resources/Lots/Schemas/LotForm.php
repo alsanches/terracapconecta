@@ -30,10 +30,16 @@ class LotForm
                     Select::make('administrative_region_id')->label('Região Administrativa')->relationship('region', 'name')->searchable()->preload()->required(),
                     TextInput::make('latitude')->required()->numeric()->minValue(-16.2)->maxValue(-15.4)->step('any'),
                     TextInput::make('longitude')->required()->numeric()->minValue(-48.4)->maxValue(-47.2)->step('any'),
+                    Select::make('location_precision')->label('Precisão')->options(['exact' => 'Exata', 'approximate' => 'Aproximada'])->required()->default('approximate'),
                 ])->columns(3)->columnSpanFull(),
                 Section::make('Publicação')->schema([
                     Select::make('status')->label('Situação')->options(['draft' => 'Rascunho', 'published' => 'Publicado', 'withdrawn' => 'Retirado'])->required()->default('draft'),
+                    Select::make('offer_status')->label('Situação comercial')->options([
+                        'available' => 'Disponível', 'failed' => 'Licitação fracassada', 'closed' => 'Encerrado', 'withdrawn' => 'Retirado',
+                    ])->required()->default('available'),
                     DateTimePicker::make('published_at')->label('Publicado em')->seconds(false),
+                    TextInput::make('source_url')->label('Fonte pública')->url()->maxLength(2048),
+                    DateTimePicker::make('source_checked_at')->label('Fonte conferida em')->seconds(false),
                     Toggle::make('is_demo')->label('Dado demonstrativo')->default(true)->required(),
                     Toggle::make('is_featured')->label('Destaque no mapa')->default(false)->required(),
                     Toggle::make('search_enabled')->label('Habilitado para busca')->default(false)->required(),

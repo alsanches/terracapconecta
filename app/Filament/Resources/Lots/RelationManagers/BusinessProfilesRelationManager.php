@@ -22,11 +22,11 @@ class BusinessProfilesRelationManager extends RelationManager
         return $schema
             ->components([
                 Select::make('business_category_id')->label('Categoria de negócio')->relationship('category', 'name')->required()->preload(),
-                TextInput::make('target_audience_score')->label('Público-alvo')->required()->numeric()->minValue(0)->maxValue(100),
-                TextInput::make('demand_density_score')->label('Demanda e densidade')->required()->numeric()->minValue(0)->maxValue(100),
-                TextInput::make('income_fit_score')->label('Compatibilidade de renda')->required()->numeric()->minValue(0)->maxValue(100),
-                TextInput::make('mobility_access_score')->label('Mobilidade e acesso')->required()->numeric()->minValue(0)->maxValue(100),
-                TextInput::make('opportunity_gap_score')->label('Carência ou oportunidade')->required()->numeric()->minValue(0)->maxValue(100),
+                TextInput::make('target_audience_score')->label('Público-alvo')->helperText('Opcional em categorias de catálogo.')->numeric()->minValue(0)->maxValue(100),
+                TextInput::make('demand_density_score')->label('Demanda e densidade')->numeric()->minValue(0)->maxValue(100),
+                TextInput::make('income_fit_score')->label('Compatibilidade de renda')->numeric()->minValue(0)->maxValue(100),
+                TextInput::make('mobility_access_score')->label('Mobilidade e acesso')->numeric()->minValue(0)->maxValue(100),
+                TextInput::make('opportunity_gap_score')->label('Carência ou oportunidade')->numeric()->minValue(0)->maxValue(100),
                 Textarea::make('reasons')->label('Justificativas (uma por linha)')->required()->rows(4)->formatStateUsing(fn ($state) => is_array($state) ? implode(PHP_EOL, $state) : $state)->dehydrateStateUsing(fn ($state) => collect(preg_split('/\r\n|\r|\n/', $state))->filter()->values()->all())->columnSpanFull(),
             ]);
     }

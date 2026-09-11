@@ -1,6 +1,117 @@
 # Terracap Conecta — contexto de continuidade
 
-Atualizado em: 2026-09-03
+Atualizado em: 2026-09-11
+
+## Retomada rápida
+
+```text
+Estado atual: implementação local concluída e validada; revisão e versionamento em execução
+Última etapa validada: interface pública, acessibilidade, build e percurso completo no Chrome
+Evidência: 23 testes PHP/123 asserções; build Vite aprovado; 7 testes Playwright aprovados; mapa com 35 RAs conferido no navegador
+Commit atual: 9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d
+Ambiente: desenvolvimento local; produção existente na VPS compartilhada com o CAMP
+Próxima ação: revisar diff, criar commit de marco e enviar para origin/main
+Bloqueios: nenhum conhecido
+```
+
+## Planejamento aprovado em 11/09/2026
+
+### Objetivo desta evolução
+
+- Formulário demonstrativo de requerimento na ficha do lote, executado apenas no navegador e sem transmissão ou armazenamento de dados pessoais.
+- Área pública de editais, com botão no topo, tabela responsiva, modal de detalhes e links para fontes oficiais.
+- Administração ampliada de editais e itens, com publicação pública, prazos, situação, fontes e resultados.
+- Categoria informativa `Templos e assistência social`, sem ranking, com dois imóveis históricos reais do Edital 07/2026 - Programa Igreja Legal.
+- Dados oficiais e fictícios diferenciados em API, mapa, fichas, legendas e avisos.
+- Implementação, testes, Git e atualização segura da produção sem alterar o fluxo do CAMP Conecta.
+
+### Etapas e situação
+
+- [VALIDADA] 1. Migration incremental, modelos e regras do domínio.
+- [VALIDADA] 2. Seeder oficial separado e idempotente com editais e imóveis históricos.
+- [VALIDADA] 3. Administração Filament ampliada.
+- [VALIDADA] 4. APIs públicas de editais e catálogo informativo.
+- [VALIDADA] 5. Tabela/modal de editais na página principal.
+- [VALIDADA] 6. Atalho, busca e marcadores para templos e assistência social.
+- [VALIDADA] 7. Formulário demonstrativo sem envio ao servidor.
+- [VALIDADA] 8. Comunicação, acessibilidade e responsividade.
+- [VALIDADA] 9. Testes PHP, Vite e Playwright.
+- [PENDENTE] 10. Commit, push, backup, publicação e validação dos dois sistemas.
+
+### Decisões de implementação
+
+- `PROJECT_CONTEXT.md` é o único arquivo canônico de continuidade e será atualizado após cada evidência validada.
+- Editais terão publicação pública independente da situação; vigência considerará também o prazo, evitando contagem indevida após vencimento.
+- Categorias terão modo `ranked` ou `catalog`; a categoria religiosa usará `catalog` e não exibirá nota ou fatores.
+- Os itens 18 (`819340-1`, Riacho Fundo II) e 27 (`193308-6`, Samambaia) serão referências históricas reais, com resultado `fracassado`, sem disponibilidade atual e localização explicitamente aproximada.
+- O formulário terá os campos do modelo fotografado, mas `Simular envio` não fará requisição HTTP, não salvará dados e gerará apenas comprovante visual `SIM-...`.
+- Haverá link separado para o portal oficial; requerimento geral e proposta de licitação não serão apresentados como equivalentes.
+- A carga oficial ficará em seeder próprio; o `DatabaseSeeder` geral não será executado novamente em produção.
+
+### Fontes públicas conferidas
+
+- Edital 12/2026 - CDRU Desenvolve/DF: caução até 22/09/2026 e licitação em 23/09/2026.
+- Chamamento Público 01/2026 - Polo Agroindustrial do Rio Preto: propostas prorrogadas até 16/10/2026.
+- Edital 11/2026 - Venda de Imóveis: recebimento em 11/09/2026; será mantido como encerrado.
+- Edital 07/2026 - Programa Igreja Legal: licitação realizada em 14/05/2026 e em fase de resultados.
+- Aviso republicado em 27/08/2026 declarou fracassados os itens 18 e 27 do Edital 07/2026.
+- Portal oficial de serviços: `https://servicosonline.terracap.df.gov.br/gso-web-cliente/#/`.
+
+### Critérios de aceite desta evolução
+
+- As três buscas ranqueadas atuais continuam funcionando.
+- Buscas religiosas retornam dois registros históricos, sem pontuação e com avisos/fontes corretos.
+- Editais públicos podem ser listados e detalhados; vencidos deixam o contador de vigentes.
+- Formulário simula validação e comprovante sem qualquer POST ou persistência.
+- Modais funcionam por teclado, fecham com Escape e devolvem o foco.
+- Administração cadastra e publica as novas informações com validações.
+- Testes PHP, build Vite e Playwright aprovados; mapa e worker validados em navegador.
+- Mudanças versionadas e publicadas; produção atualizada após backup, com Terracap e CAMP verificados.
+
+### Marco validado 1 - domínio ampliado
+
+- Migration incremental: `database/migrations/2026_09_11_120000_expand_public_notices_and_catalog_lots.php`.
+- Modelos alterados: `Notice`, `NoticeItem`, `Lot` e `BusinessCategory`.
+- Editais agora distinguem publicação pública, procedimento, processo, prazos, regiões, links oficiais, conferência, situação e origem.
+- Itens suportam natureza do valor, avaliação, mínimo, caução e resultado.
+- Lotes suportam precisão da localização, situação comercial e fonte; categorias suportam `ranked` e `catalog`; escores tornaram-se opcionais para catálogo.
+- Vigência: edital só é vigente se estiver publicado, com situação `open` e prazo principal ainda não vencido. Prazo em data considera o fim do dia; licitação com horário preserva a hora.
+- Evidências locais em 11/09/2026: `ExpandedDomainTest` aprovou 2 testes/8 asserções; suíte preexistente aprovou 13 testes/64 asserções; Pint aprovou os arquivos do marco.
+- Próximo passo: criar o `OfficialPublicDataSeeder`, executá-lo duas vezes e provar idempotência, valores, situação e localização dos dois imóveis.
+
+### Marco validado 2 - carga pública oficial
+
+- Seeder isolado: `database/seeders/OfficialPublicDataSeeder.php`; ele não foi adicionado ao `DatabaseSeeder`.
+- Quatro editais oficiais cadastrados por `updateOrCreate`: 12/2026, Chamamento 01/2026, 11/2026 e 07/2026.
+- Categoria `templos-assistencia-social` criada em modo `catalog`, com sinônimos acentuados e não acentuados.
+- Imóveis históricos reais: item 18/código `819340-1` em Riacho Fundo II e item 27/código `193308-6` em Samambaia.
+- Ambos têm coordenadas aproximadas validadas dentro das respectivas RAs, situação `failed`, valores oficiais e aviso de indisponibilidade atual.
+- O seeder executado duas vezes preservou exatamente quatro editais oficiais, dois lotes oficiais e os dez lotes demonstrativos.
+- Evidência local em 11/09/2026: `OfficialPublicDataSeederTest` aprovou 2 testes/12 asserções.
+- Próximo passo: expor apenas editais publicados nas APIs, implementar `mode=catalog` sem pontuação e ampliar os formulários administrativos.
+
+### Marcos validados 3 e 4 - administração e APIs
+
+- Filament: formulário, tabela, filtros e detalhe de editais receberam prazos, origem, publicação, fonte, links e novas situações; itens receberam tipo de valor, avaliação, caução e resultado.
+- Lotes receberam precisão, situação comercial e fonte; perfis aceitam notas nulas para categorias de catálogo.
+- Regras administrativas: edital oficial publicado exige página oficial e data de conferência; edital aberto exige prazo principal; links externos exigem HTTPS.
+- Novas rotas: `GET /api/v1/notices` e `GET /api/v1/notices/{notice}`. A listagem expõe somente registros publicados e aceita filtros `status` e `current`.
+- APIs de lotes distinguem `demonstration` e `official_reference`, com precisão, situação comercial, fonte e aviso específico.
+- Recomendações retornam `mode=ranked` ou `mode=catalog`; catálogo religioso não possui nota ou fatores; busca ranqueada continua reproduzível.
+- Evidências em 11/09/2026: conjunto integrado com 11 testes/65 asserções; validações administrativas com 2 testes/4 asserções; Pint aprovado.
+- Próximo passo: integrar as APIs à página pública, implementar as duas modais acessíveis e provar que o formulário não envia dados.
+
+### Marcos validados 5 a 9 - experiência pública e testes
+
+- Topo: botão `Editais vigentes` com contador calculado pela vigência real e âncora para a seção pública.
+- Editais: tabela desktop e cartões no celular, estado vazio/erro independente do mapa e modal com foco inicial, Escape, devolução de foco, datas, regiões e links oficiais com `noopener noreferrer`.
+- Categoria religiosa: quarto atalho, sinônimos, dois marcadores roxos com legenda histórica, enquadramento conjunto e abertura do primeiro resultado; nenhum score, fator ou expressão de maior potencial.
+- Ficha do imóvel: natureza do dado, precisão, situação, preço público mensal, caução, resultado, fonte e aviso próprio para referência histórica.
+- Requerimento: modal com os campos aprovados, lote preenchido, aviso de privacidade, validação nativa, comprovante `SIM-...`, limpeza ao fechar e link separado para o portal oficial. Não há rota ou API de recebimento.
+- Carregamento do mapa e de editais é independente; falha de um não esvazia o outro.
+- `tests/browser/map.spec.js` cobre mapa/worker, três rankings, catálogo religioso, modal e foco, ausência de qualquer requisição não-GET, limpeza do formulário e cartões móveis.
+- Evidências finais locais em 11/09/2026: 23 testes PHP e 123 asserções; Pint aprovado; `git diff --check` aprovado; Vite aprovado; 7 testes Playwright no Chrome aprovados; inspeção no navegador confirmou 35 RAs, 12 marcadores/listagens, quatro editais e contador 2.
+- Próximo passo: revisar e versionar; em seguida inventariar a produção, gerar/validar backup e publicar a imagem imutável.
 
 ## Objetivo
 

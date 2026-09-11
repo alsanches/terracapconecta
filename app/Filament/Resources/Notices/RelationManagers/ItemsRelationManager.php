@@ -31,12 +31,24 @@ class ItemsRelationManager extends RelationManager
                     ->required(),
                 TextInput::make('item_number')
                     ->required(),
+                Select::make('amount_type')->label('Tipo de valor')->options([
+                    'sale_price' => 'Preço de venda',
+                    'monthly_public_price' => 'Preço público mensal',
+                    'other' => 'Outro',
+                ])->required()->default('sale_price'),
+                TextInput::make('appraisal_value')->label('Avaliação')->numeric()->prefix('R$'),
                 TextInput::make('minimum_price')
+                    ->label('Valor mínimo')
                     ->numeric()
                     ->prefix('R$'),
+                TextInput::make('deposit_amount')->label('Caução')->numeric()->prefix('R$'),
                 Textarea::make('payment_terms')
                     ->columnSpanFull(),
-                Select::make('status')->label('Situação')->options(['open' => 'Em oferta', 'closed' => 'Encerrado', 'withdrawn' => 'Retirado'])->required()->default('open'),
+                Textarea::make('outcome_notes')->label('Observação do resultado')->columnSpanFull(),
+                Select::make('status')->label('Situação')->options([
+                    'open' => 'Em oferta', 'closed' => 'Encerrado', 'failed' => 'Fracassado',
+                    'awarded' => 'Homologado', 'withdrawn' => 'Retirado',
+                ])->required()->default('open'),
             ]);
     }
 
@@ -52,6 +64,7 @@ class ItemsRelationManager extends RelationManager
                 TextColumn::make('minimum_price')
                     ->money('BRL')
                     ->sortable(),
+                TextColumn::make('deposit_amount')->label('Caução')->money('BRL')->sortable(),
                 TextColumn::make('status')
                     ->searchable(),
                 TextColumn::make('created_at')

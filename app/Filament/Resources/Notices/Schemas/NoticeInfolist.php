@@ -16,6 +16,8 @@ class NoticeInfolist
                 TextEntry::make('code'),
                 TextEntry::make('title'),
                 TextEntry::make('modality'),
+                TextEntry::make('procedure_type')->label('Procedimento')->placeholder('-'),
+                TextEntry::make('process_number')->label('Processo')->placeholder('-'),
                 TextEntry::make('opens_at')
                     ->date()
                     ->placeholder('-'),
@@ -23,6 +25,7 @@ class NoticeInfolist
                     ->date()
                     ->placeholder('-'),
                 TextEntry::make('status'),
+                IconEntry::make('public_visible')->label('Publicado no site')->boolean(),
                 TextEntry::make('description')
                     ->placeholder('-')
                     ->columnSpanFull(),
@@ -30,6 +33,11 @@ class NoticeInfolist
                     ->placeholder('-'),
                 TextEntry::make('document_url')
                     ->placeholder('-'),
+                TextEntry::make('official_page_url')->label('Página oficial')->url(fn ($record) => $record->official_page_url)->openUrlInNewTab()->placeholder('-'),
+                TextEntry::make('proposal_url')->label('Canal de proposta')->url(fn ($record) => $record->proposal_url)->openUrlInNewTab()->placeholder('-'),
+                TextEntry::make('result_url')->label('Resultado')->url(fn ($record) => $record->result_url)->openUrlInNewTab()->placeholder('-'),
+                TextEntry::make('regions_summary')->label('Regiões')->placeholder('-')->columnSpanFull(),
+                TextEntry::make('source_checked_at')->label('Fonte conferida')->dateTime('d/m/Y H:i')->placeholder('-'),
                 IconEntry::make('is_demo')
                     ->boolean(),
                 TextEntry::make('created_at')

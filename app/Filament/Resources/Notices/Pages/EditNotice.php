@@ -13,6 +13,11 @@ class EditNotice extends EditRecord
 {
     protected static string $resource = NoticeResource::class;
 
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        return NoticeResource::validatePublication($data);
+    }
+
     protected function getHeaderActions(): array
     {
         return [

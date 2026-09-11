@@ -5,13 +5,13 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: nova versão publicada, validada e identificada por tag; falta somente remover o acesso SSH temporário
-Última etapa validada: criação e publicação da tag imutável da versão implantada
-Evidência: prod-2026-09-11.1 aponta para 231620a0cf72c705f9ea9c54092301bf24a34f02 e está publicada em origin
+Estado atual: implementação concluída, versionada, publicada e validada; acesso temporário encerrado
+Última etapa validada: encerramento seguro do acesso de implantação e conferência externa final
+Evidência: duas chaves públicas temporárias removidas da VPS, chave rejeitada em nova tentativa, quatro arquivos de chave temporária removidos localmente e FINAL_EXTERNAL_CHECK_OK com Terracap/CAMP HTTP 200
 Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
 Ambiente: app e queue executam a nova imagem; PostgreSQL/PostGIS e backup mantêm os contêineres anteriores saudáveis
-Próxima ação: remover da VPS as duas chaves públicas temporárias do Codex, excluir a chave privada temporária local e fazer a conferência final sem SSH
-Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
+Próxima ação: realizar o ensaio da apresentação com as quatro buscas, abrir um edital e simular um requerimento usando somente dados fictícios
+Bloqueios: nenhum
 ```
 
 ### Evidências da implantação em 11/09/2026
@@ -46,6 +46,9 @@ Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 - No viewport móvel de 390 x 844, o mapa permaneceu carregado, a ficha virou gaveta inferior e os quatro editais foram renderizados como cartões: cabeçalho da tabela oculto, cada linha em bloco e largura do documento sem overflow horizontal.
 - A checagem operacional confirmou app saudável, queue ativa, banco saudável e backup ativo, sem `exception`, `fatal`, `panic` ou falhas recentes nos logs. `https://campconecta.tech/` permaneceu com HTTP 200 e título `CAMP Conecta · Acesso`.
 - A tag anotada `prod-2026-09-11.1` foi criada sobre o SHA efetivamente implantado `231620a0cf72c705f9ea9c54092301bf24a34f02` e publicada em `origin` com a descrição desta evolução.
+- As duas chaves públicas temporárias identificadas por `codex-terracap-deploy-20260911` foram removidas de `/home/debian/.ssh/authorized_keys`; a contagem passou de 2 para 0 e uma nova autenticação com a chave temporária foi corretamente rejeitada (`TEMP_KEY_REJECTED_OK`). Nenhuma chave preexistente do usuário foi alterada.
+- Os quatro arquivos locais de chave temporária foram removidos. O diretório temporário, já vazio, pode permanecer porque o executor impediu preventivamente a remoção da pasta fora do workspace; não há credencial dentro dele.
+- A conferência final feita sem SSH aprovou a página e `/up` do Terracap com HTTP 200, quatro editais/dois vigentes, catálogo religioso com dois resultados, tag remota presente e CAMP com HTTP 200 (`FINAL_EXTERNAL_CHECK_OK`).
 
 ## Planejamento aprovado em 11/09/2026
 
@@ -69,7 +72,7 @@ Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 - [VALIDADA] 7. Formulário demonstrativo sem envio ao servidor.
 - [VALIDADA] 8. Comunicação, acessibilidade e responsividade.
 - [VALIDADA] 9. Testes PHP, Vite e Playwright.
-- [EM EXECUÇÃO] 10. Commit, push, backup, publicação e validação dos dois sistemas. Git concluído; VPS aguarda autenticação.
+- [VALIDADA] 10. Commit, push, backup/restauração, migration, carga oficial, publicação, validação dos dois sistemas, tag e encerramento do acesso temporário.
 
 ### Decisões de implementação
 
@@ -146,7 +149,17 @@ Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 - Evidências finais locais em 11/09/2026: 23 testes PHP e 123 asserções; Pint aprovado; `git diff --check` aprovado; Vite aprovado; 7 testes Playwright no Chrome aprovados; inspeção no navegador confirmou 35 RAs, 12 marcadores/listagens, quatro editais e contador 2.
 - Próximo passo: revisar e versionar; em seguida inventariar a produção, gerar/validar backup e publicar a imagem imutável.
 
-## Objetivo
+### Marco validado 10 - Git e produção
+
+- Código funcional consolidado em `5b7a51da000b2dc98ad64d70ae4007dd2af64b5e`; histórico operacional mantido em commits sucessivos de `PROJECT_CONTEXT.md`, todos publicados em `origin/main`.
+- Backup anterior à mudança e restauração integral em banco isolado foram aprovados antes da migration.
+- A imagem implantada é `terracap-conecta:231620a0cf72c705f9ea9c54092301bf24a34f02`, ID `sha256:952d66b88842bad4f0f125c71714fd20fafaf9be371f11c85dc173f72102b11b`, identificada pela tag Git `prod-2026-09-11.1`.
+- Somente a migration incremental e `OfficialPublicDataSeeder` foram executados. App e queue foram recriados; banco e backup permaneceram ativos.
+- Produção validada por HTTP, APIs, inspeção visual desktop/móvel, acessibilidade por teclado, console do navegador e estado dos contêineres. O CAMP permaneceu íntegro.
+- Rollback disponível: imagem anterior `terracap-conecta:9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d`, backup PostgreSQL validado e cópia protegida da configuração anterior. A migration é aditiva; qualquer retorno deve preservar o banco e ser precedido de avaliação.
+- O acesso SSH efêmero foi removido e comprovadamente deixou de autenticar.
+
+## Objetivo original do MVP
 
 Construir um MVP demonstrativo para concurso de inovação tecnológica da Terracap: mapa interativo das 35 Regiões Administrativas do DF, dez lotes fictícios, três buscas explicáveis e administração de lotes, editais e fontes de dados.
 
@@ -179,7 +192,7 @@ Construir um MVP demonstrativo para concurso de inovação tecnológica da Terra
 - Logs da aplicação em contêiner devem preferencialmente ir para `stderr`, com rotação tratada pelo runtime.
 - Backup PostgreSQL deverá detectar falha do dump, publicar somente arquivo válido e ser testado por restauração em banco isolado.
 
-## Estado validado — aplicação
+## Histórico validado — aplicação inicial
 
 - Workspace inicialmente continha apenas `terracap-conecta.html`.
 - PHP local 8.5.8, Composer 2.10.2 e Node.js 22.23.2 estão disponíveis.
@@ -189,7 +202,7 @@ Construir um MVP demonstrativo para concurso de inovação tecnológica da Terra
 - MapLibre GL JS 6.7.0 e Alpine.js instalados no frontend.
 - Identidade Git local configurada como `Alexandre Sanches <alsanches@gmail.com>`.
 - Remoto `origin` conectado a `https://github.com/alsanches/terracapconecta.git`; o remoto inicialmente vazio já recebeu os commits do MVP.
-- Commit funcional de referência e HEAD atual: `f5ee1891b19af0be77230f20781f72750ab7e4fa` (`fix: inclui worker cartografico e testa mapa no navegador`), publicado na branch `main`.
+- Commit funcional de referência naquele marco inicial: `f5ee1891b19af0be77230f20781f72750ab7e4fa` (`fix: inclui worker cartografico e testa mapa no navegador`), publicado na branch `main`.
 - GeoJSON oficial do IPEDF baixado para `database/data/ras-df.geojson`; validação confirmou exatamente 35 RAs em EPSG:4326.
 - Domínio persistente criado para RAs, lotes, editais/itens, categorias, indicadores, fontes, sincronizações e auditoria.
 - Carga demonstrativa validada no SQLite local: 35 RAs, dez lotes publicados e exatamente três lotes habilitados para busca.
@@ -210,7 +223,7 @@ Construir um MVP demonstrativo para concurso de inovação tecnológica da Terra
 - Instâncias do mapa ficam fora do estado reativo Alpine; os dados enviados ao worker são objetos não reativos. O seletor administrativo também aguarda o GeoJSON antes de criar o mapa.
 - Validação real em Chrome: contornos e dez marcadores renderizados; três testes Playwright aprovados para clique/retorno ao DF, as três buscas e gaveta móvel.
 
-## Estado validado — VPS do CAMP
+## Histórico validado — VPS antes da primeira implantação
 
 - Host: `srv1862758`.
 - Sistema operacional: Debian GNU/Linux 13.6 (Trixie), amd64.
@@ -244,7 +257,9 @@ Construir um MVP demonstrativo para concurso de inovação tecnológica da Terra
 - `/etc/docker/daemon.json` não existe; nenhuma customização global do daemon foi aplicada.
 - Após a instalação do Docker, Nginx permaneceu como único processo nas portas 80/443, `8011` permaneceu livre, todos os serviços do CAMP ficaram ativos e `campconecta.tech` continuou retornando HTTP 200.
 
-## Pendências técnicas antes de subir o Terracap
+## Histórico encerrado — pendências levantadas antes da primeira implantação
+
+Os itens abaixo registram o checklist que orientou a implantação original; não representam pendências atuais desta evolução.
 
 - Criar configuração de produção específica, preferencialmente `compose.production.yaml` completo, sem herdar as portas públicas do Compose original.
 - Publicar somente `127.0.0.1:8011:80` no serviço web, após nova confirmação da porta.
@@ -267,7 +282,7 @@ Construir um MVP demonstrativo para concurso de inovação tecnológica da Terra
 - Aplicar limites de CPU/memória aos serviços Terracap antes da publicação.
 - Não declarar concluído até validar mapa, worker MapLibre, APIs, admin, upload/persistência, fila, backup/restauração e o CAMP após a ativação.
 
-## Próximas ações
+## Histórico — roteiro da primeira implantação já concluída
 
 1. Atualizar e versionar a documentação de deploy sem alterar ainda os arquivos de infraestrutura.
 2. Revisar e alterar, em commits separados e verificáveis, a infraestrutura do Terracap: Compose de produção, `.env.production.example`, Dockerfile, backup, healthcheck, fila e trusted proxies.
@@ -285,7 +300,7 @@ Construir um MVP demonstrativo para concurso de inovação tecnológica da Terra
 - Usuário local: `admin@terracapconecta.local`.
 - A senha fica somente no arquivo `.env` ignorado pelo Git; não reutilizá-la na produção.
 
-## Validações esperadas para aceite final
+## Histórico — validações esperadas para o primeiro aceite
 
 - Testes automatizados PHP aprovados.
 - Build Vite aprovado.

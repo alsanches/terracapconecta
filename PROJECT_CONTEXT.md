@@ -5,13 +5,13 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: versão publicada permanece ativa; retirada temporária solicitada para vigorar até segunda-feira, 14/09/2026, às 08h de Brasília
-Última etapa validada: tentativa de acesso com a chave SSH normal confirmou que ela exige autenticação interativa; nenhuma alteração foi feita na VPS
-Evidência: `ssh -o BatchMode=yes campconecta` foi rejeitado com `Permission denied (publickey)` após a remoção segura da chave efêmera
+Estado atual: reativação automática programada e validada; Terracap ainda está ativo e aguarda parada controlada
+Última etapa validada: timer transitório de reativação criado no systemd da VPS
+Evidência: `terracap-conecta-resume-20260914.timer` ativo, disparo em 14/09/2026 às 08:00:00 -03 e serviço associado `terracap-conecta-resume-20260914.service`
 Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
 Ambiente: app e queue executam a nova imagem; PostgreSQL/PostGIS e backup mantêm os contêineres anteriores saudáveis
-Próxima ação: com o usuário autenticado em `ssh campconecta`, criar e verificar um timer transitório do systemd para reativar app/queue em 14/09/2026 às 08h BRT; somente depois parar app/queue e validar Terracap indisponível e CAMP HTTP 200
-Bloqueios: é necessária uma sessão SSH autenticada pelo usuário; nenhuma senha, chave ou segredo deve ser compartilhado no chat
+Próxima ação: parar exclusivamente `app` e `queue` pelo Compose em `/opt/terracap-conecta`; conferir que db/backup continuam ativos, Terracap fica indisponível e CAMP permanece HTTP 200
+Bloqueios: nenhum; usuário está autenticado na VPS e executará o bloco restrito ao Terracap
 ```
 
 ### Janela temporária solicitada em 11/09/2026
@@ -21,6 +21,8 @@ Bloqueios: é necessária uma sessão SSH autenticada pelo usuário; nenhuma sen
 - Não alterar Nginx global, CAMP Conecta, PostgreSQL/PostGIS, volumes, backups, migrations ou dados.
 - Critério de validação da retirada: Terracap deixa de responder normalmente, os contêineres de app/queue ficam parados, banco/backup permanecem ativos e `https://campconecta.tech/` continua em HTTP 200.
 - Critério de retomada: timer executa `docker compose up -d --no-deps app queue`; app volta a `healthy`, APIs e mapa respondem, e CAMP permanece em HTTP 200.
+- Timer validado: `terracap-conecta-resume-20260914.timer` está `active`, com próximo disparo em `Mon 2026-09-14 08:00:00 -03` e ativação de `terracap-conecta-resume-20260914.service`.
+- Restrição reiterada pelo usuário: jamais parar ou alterar o CAMP Conecta; a retirada temporária deve atingir somente o Terracap Conecta.
 
 ### Evidências da implantação em 11/09/2026
 

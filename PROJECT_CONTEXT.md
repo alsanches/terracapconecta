@@ -5,13 +5,13 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: reativação automática programada e validada; Terracap ainda está ativo e aguarda parada controlada
-Última etapa validada: timer transitório de reativação criado no systemd da VPS
-Evidência: `terracap-conecta-resume-20260914.timer` ativo, disparo em 14/09/2026 às 08:00:00 -03 e serviço associado `terracap-conecta-resume-20260914.service`
+Estado atual: Terracap Conecta temporariamente indisponível; reativação automática programada para segunda-feira, 14/09/2026, às 08h de Brasília
+Última etapa validada: parada controlada e verificação independente do isolamento em relação ao CAMP
+Evidência: app/queue do Terracap em `exited`, banco/backup ativos, Terracap HTTP 502 e CAMP HTTP 200; `RETIRADA_TEMPORARIA_OK` e `EXTERNAL_DOWNTIME_CHECK_OK`
 Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
 Ambiente: app e queue executam a nova imagem; PostgreSQL/PostGIS e backup mantêm os contêineres anteriores saudáveis
-Próxima ação: parar exclusivamente `app` e `queue` pelo Compose em `/opt/terracap-conecta`; conferir que db/backup continuam ativos, Terracap fica indisponível e CAMP permanece HTTP 200
-Bloqueios: nenhum; usuário está autenticado na VPS e executará o bloco restrito ao Terracap
+Próxima ação: em 14/09/2026 após 08h, confirmar que o timer iniciou app/queue, app ficou `healthy`, Terracap voltou a HTTP 200 e CAMP permaneceu HTTP 200
+Bloqueios: nenhum; retomada automática está sob responsabilidade do timer ativo na própria VPS
 ```
 
 ### Janela temporária solicitada em 11/09/2026
@@ -23,6 +23,9 @@ Bloqueios: nenhum; usuário está autenticado na VPS e executará o bloco restri
 - Critério de retomada: timer executa `docker compose up -d --no-deps app queue`; app volta a `healthy`, APIs e mapa respondem, e CAMP permanece em HTTP 200.
 - Timer validado: `terracap-conecta-resume-20260914.timer` está `active`, com próximo disparo em `Mon 2026-09-14 08:00:00 -03` e ativação de `terracap-conecta-resume-20260914.service`.
 - Restrição reiterada pelo usuário: jamais parar ou alterar o CAMP Conecta; a retirada temporária deve atingir somente o Terracap Conecta.
+- Retirada executada somente pelo Compose de `/opt/terracap-conecta`, com `stop app queue`; nenhum serviço, arquivo ou processo do CAMP foi alterado.
+- Validação na VPS: `terracap-conecta-app-1` e `terracap-conecta-queue-1` em `exited`; `terracap-conecta-db-1` e `terracap-conecta-backup-1` continuaram ativos; Terracap retornou HTTP 502 e CAMP HTTP 200 (`RETIRADA_TEMPORARIA_OK`).
+- Verificação externa independente repetiu Terracap HTTP 502 e CAMP HTTP 200 com título `CAMP Conecta · Acesso` (`EXTERNAL_DOWNTIME_CHECK_OK`).
 
 ### Evidências da implantação em 11/09/2026
 

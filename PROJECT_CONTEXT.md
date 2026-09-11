@@ -5,12 +5,12 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: imagem imutável candidata construída na VPS, ainda sem ativação ou alteração do banco
-Última etapa validada: build de produção da imagem candidata
-Evidência: BUILD_OK; imagem terracap-conecta:231620a0cf72c705f9ea9c54092301bf24a34f02 com ID sha256:952d66b88842bad4f0f125c71714fd20fafaf9be371f11c85dc173f72102b11b; bundle Vite contém o worker do MapLibre
+Estado atual: imagem candidata validada em execução isolada; migration incremental está pendente e ainda não foi aplicada
+Última etapa validada: preflight da imagem candidata contra a configuração de produção
+Evidência: CANDIDATE_PREFLIGHT_OK; Laravel 13.30.1/PHP 8.4.25 em production, seis rotas /api/v1 presentes e somente 2026_09_11_120000_expand_public_notices_and_catalog_lots pendente
 Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
 Ambiente: nova imagem disponível; app e queue continuam executando a imagem anterior 9a7b197; banco ainda não migrado
-Próxima ação: validar a imagem candidata em execução isolada e conferir o estado das migrations antes de alterar o banco
+Próxima ação: aplicar somente a migration incremental pendente usando a imagem candidata e confirmar seu estado como Ran
 Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 ```
 
@@ -30,6 +30,9 @@ Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 - A imagem imutável `terracap-conecta:231620a0cf72c705f9ea9c54092301bf24a34f02` foi construída com sucesso, ID `sha256:952d66b88842bad4f0f125c71714fd20fafaf9be371f11c85dc173f72102b11b`, criada em 11/09/2026 às 14:59:16 -03:00 e com 225.337.581 bytes.
 - O build Vite executado dentro da imagem foi aprovado e gerou `maplibre-gl-worker-DSF6dqVc.js`; os contêineres ativos permaneceram intocados na imagem anterior durante o build.
 - A primeira chamada automatizada do build foi interrompida antes de qualquer construção porque uma variável foi expandida pelo PowerShell local; a repetição usou o SHA literal, eliminando a ambiguidade e produzindo `BUILD_OK`.
+- O preflight executou a imagem candidata em contêineres efêmeros sem dependências recriadas: Laravel 13.30.1, PHP 8.4.25, ambiente `production`, debug desativado e manutenção desativada.
+- A listagem de rotas confirmou as seis APIs esperadas em `/api/v1`, inclusive `notices`, `lots`, `regions` e `recommendations`.
+- `migrate:status` confirmou que todas as migrations anteriores estavam executadas e apenas `2026_09_11_120000_expand_public_notices_and_catalog_lots` estava pendente; nenhum dado foi alterado no preflight (`CANDIDATE_PREFLIGHT_OK`).
 
 ## Planejamento aprovado em 11/09/2026
 

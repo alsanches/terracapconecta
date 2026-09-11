@@ -5,12 +5,12 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: imagem candidata ativada em app e queue; validação funcional pública está em execução
-Última etapa validada: ativação isolada dos serviços da aplicação
-Evidência: app saudável e queue em execução na imagem terracap-conecta:231620a0cf72c705f9ea9c54092301bf24a34f02; banco e backup não foram recriados; ACTIVATION_HEALTHY
+Estado atual: nova versão publicada e validada funcionalmente; falta identificar a versão com tag e remover o acesso SSH temporário
+Última etapa validada: validação pública, visual, responsiva e operacional após a ativação
+Evidência: HTTP_PATHS_OK, APIs com 4 editais/2 vigentes/12 lotes, mapa MapLibre com 35 RAs, catálogo religioso e requerimento aprovados, console limpo, CAMP HTTP 200, app/db saudáveis e queue/backup ativos
 Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
 Ambiente: app e queue executam a nova imagem; PostgreSQL/PostGIS e backup mantêm os contêineres anteriores saudáveis
-Próxima ação: validar saúde, APIs, mapa, editais, catálogo religioso e formulário no caminho público; depois conferir o CAMP Conecta
+Próxima ação: criar e publicar a tag da versão implantada, registrar o marco e então remover as duas chaves SSH temporárias
 Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 ```
 
@@ -37,8 +37,14 @@ Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 - Somente `OfficialPublicDataSeeder` foi executado; uma segunda execução completa foi aprovada (`OFFICIAL_SEEDER_IDEMPOTENT_OK`), comprovando que a carga não duplica os registros.
 - A verificação SQL direta confirmou quatro editais públicos com quatro códigos distintos: `07/2026` em resultado, `11/2026` encerrado, `12/2026` aberto e `CHAMAMENTO-01/2026` aberto.
 - O banco contém 12 lotes, exatamente dois históricos oficiais (`193308-6` e `819340-1`), ambos fracassados e com localização aproximada; a categoria `templos-assistencia-social` existe uma única vez em modo `catalog` (`OFFICIAL_DATA_VERIFIED`).
-- Antes da troca, `.env.production` foi preservado em `.env.production.pre-231620a`; `APP_IMAGE_TAG` passou para o SHA candidato.
+- Antes da troca, `.env.production` foi preservado para retorno controlado; a cópia foi movida para `/var/backups/terracap-conecta/deploy-state/env-production-pre-231620a`, protegida como `root:root` e modo `600`, sem registrar seu conteúdo. `APP_IMAGE_TAG` passou para o SHA candidato e o checkout voltou a ficar limpo.
 - Somente os serviços `app` e `queue` foram recriados. O app atingiu `healthy` e a fila permaneceu em execução na imagem `terracap-conecta:231620a0cf72c705f9ea9c54092301bf24a34f02` (`ACTIVATION_HEALTHY`). PostgreSQL/PostGIS e o serviço de backup não foram recriados.
+- A validação HTTP externa aprovou `/up` com 200, `/admin` redirecionando para `/admin/login`, quatro editais publicados, dois vigentes, 12 lotes, busca `igreja` em modo `catalog` com dois resultados sem nota e busca `coworking` em modo `ranked` com nota reproduzida de 89 (`HTTP_PATHS_OK`).
+- No navegador de produção, o MapLibre carregou um canvas de 919 x 680 px no viewport de 1440 x 900, exibiu as 35 RAs e a alternativa textual com 12 oportunidades; não houve erro ou alerta no console.
+- A modal de edital abriu com foco no botão de fechar, mostrou fonte e data de conferência, fechou por Escape e devolveu o foco ao botão de origem.
+- A busca religiosa abriu a ficha histórica do item 27 com fonte oficial, situação fracassada, preço mensal e caução, sem pontuação. O requerimento abriu com foco no primeiro campo, gerou comprovante visual `SIM-...` usando apenas dados fictícios, informou ausência de envio/salvamento e voltou vazio após fechar e reabrir.
+- No viewport móvel de 390 x 844, o mapa permaneceu carregado, a ficha virou gaveta inferior e os quatro editais foram renderizados como cartões: cabeçalho da tabela oculto, cada linha em bloco e largura do documento sem overflow horizontal.
+- A checagem operacional confirmou app saudável, queue ativa, banco saudável e backup ativo, sem `exception`, `fatal`, `panic` ou falhas recentes nos logs. `https://campconecta.tech/` permaneceu com HTTP 200 e título `CAMP Conecta · Acesso`.
 
 ## Planejamento aprovado em 11/09/2026
 

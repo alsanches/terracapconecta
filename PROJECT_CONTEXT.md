@@ -6,11 +6,11 @@ Atualizado em: 2026-09-11
 
 ```text
 Estado atual: implementação no GitHub; inventário de produção validado e preparação do backup em execução
-Última etapa validada: identificação dos quatro contêineres e da imagem ativa anterior
-Evidência: app saudável na imagem 9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d; fila, backup e PostgreSQL/PostGIS ativos; app exposto somente em 127.0.0.1:8011
-Commit atual: d2576f6
+Última etapa validada: identificação dos quatro contêineres, diretório Compose e referência exata de rollback
+Evidência: app saudável na tag 9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d e imagem sha256:5b8750493280c94e66210e18731accab5ef27548b947408c270f22bc75ae6053; Compose em /opt/terracap-conecta/compose.production.yaml
+Commit atual: 784c909
 Ambiente: produção anterior ativa na VPS compartilhada, sem alteração realizada nesta etapa
-Próxima ação: localizar o diretório Compose e registrar IDs/digests; depois gerar e validar backup PostgreSQL
+Próxima ação: gerar backup PostgreSQL manual, validar seu catálogo com pg_restore e registrar tamanho e hash
 Bloqueios: Codex não controla o terminal externo; execução assistida pelo usuário com comandos curtos, sem compartilhar segredos
 ```
 

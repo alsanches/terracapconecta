@@ -5,13 +5,13 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: checkout novo validado na VPS; construção imutável sem ativação é o próximo passo
-Última etapa validada: fetch raso explícito e checkout detached do SHA planejado
-Evidência: CHECKOUT_OK 231620a0cf72c705f9ea9c54092301bf24a34f02; migration e seeder específicos presentes; worktree limpo
+Estado atual: imagem imutável candidata construída na VPS, ainda sem ativação ou alteração do banco
+Última etapa validada: build de produção da imagem candidata
+Evidência: BUILD_OK; imagem terracap-conecta:231620a0cf72c705f9ea9c54092301bf24a34f02 com ID sha256:952d66b88842bad4f0f125c71714fd20fafaf9be371f11c85dc173f72102b11b; bundle Vite contém o worker do MapLibre
 Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
-Ambiente: arquivos novos presentes na VPS; contêineres ainda executam a imagem anterior 9a7b197
-Próxima ação: construir terracap-conecta:231620a0cf72c705f9ea9c54092301bf24a34f02 sem recriar contêineres
-Bloqueios: Codex não controla o terminal externo; execução assistida pelo usuário com comandos curtos, sem compartilhar segredos
+Ambiente: nova imagem disponível; app e queue continuam executando a imagem anterior 9a7b197; banco ainda não migrado
+Próxima ação: validar a imagem candidata em execução isolada e conferir o estado das migrations antes de alterar o banco
+Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 ```
 
 ### Evidências da implantação em 11/09/2026
@@ -27,6 +27,9 @@ Bloqueios: Codex não controla o terminal externo; execução assistida pelo usu
 - Primeira tentativa de checkout do commit documental `f91e951f055bdc7182e92d01cbf8423722b9650a` falhou com `unable to read tree`, compatível com clone raso/incompleto; HEAD permaneceu no release anterior e nada foi publicado.
 - O release funcional imutável desta evolução é `5b7a51da000b2dc98ad64d70ae4007dd2af64b5e`; commits posteriores alteram apenas `PROJECT_CONTEXT.md` e não precisam compor a imagem.
 - O fetch com `--depth=1 origin main` recuperou a árvore completa; checkout detached validado em `231620a0cf72c705f9ea9c54092301bf24a34f02`, com migration/seeder presentes e sem alterações locais.
+- A imagem imutável `terracap-conecta:231620a0cf72c705f9ea9c54092301bf24a34f02` foi construída com sucesso, ID `sha256:952d66b88842bad4f0f125c71714fd20fafaf9be371f11c85dc173f72102b11b`, criada em 11/09/2026 às 14:59:16 -03:00 e com 225.337.581 bytes.
+- O build Vite executado dentro da imagem foi aprovado e gerou `maplibre-gl-worker-DSF6dqVc.js`; os contêineres ativos permaneceram intocados na imagem anterior durante o build.
+- A primeira chamada automatizada do build foi interrompida antes de qualquer construção porque uma variável foi expandida pelo PowerShell local; a repetição usou o SHA literal, eliminando a ambiguidade e produzindo `BUILD_OK`.
 
 ## Planejamento aprovado em 11/09/2026
 

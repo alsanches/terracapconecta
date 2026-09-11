@@ -5,12 +5,12 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: migration incremental aplicada; dados oficiais ainda não carregados e aplicação ativa permanece na imagem anterior
-Última etapa validada: migration incremental de editais públicos e catálogo de lotes em produção
-Evidência: 2026_09_11_120000_expand_public_notices_and_catalog_lots executada em 104,50 ms e confirmada como batch 2 / Ran; MIGRATION_OK
+Estado atual: migration e carga oficial validadas; aplicação ativa ainda permanece na imagem anterior
+Última etapa validada: execução idempotente e conferência direta da carga oficial em produção
+Evidência: OfficialPublicDataSeeder executado duas vezes; 4 editais públicos distintos, 12 lotes no total, 2 históricos oficiais e 1 categoria religiosa em modo catalog; OFFICIAL_DATA_VERIFIED
 Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
 Ambiente: nova imagem disponível; app e queue continuam executando a imagem anterior 9a7b197; banco ainda não migrado
-Próxima ação: executar somente OfficialPublicDataSeeder com a imagem candidata e verificar a carga idempotente
+Próxima ação: apontar APP_IMAGE_TAG para a imagem candidata e recriar somente app e queue, preservando banco e backup
 Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 ```
 
@@ -34,6 +34,9 @@ Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 - A listagem de rotas confirmou as seis APIs esperadas em `/api/v1`, inclusive `notices`, `lots`, `regions` e `recommendations`.
 - `migrate:status` confirmou que todas as migrations anteriores estavam executadas e apenas `2026_09_11_120000_expand_public_notices_and_catalog_lots` estava pendente; nenhum dado foi alterado no preflight (`CANDIDATE_PREFLIGHT_OK`).
 - A migration incremental `2026_09_11_120000_expand_public_notices_and_catalog_lots` foi aplicada em 104,50 ms pela imagem candidata e confirmada no batch 2 como `Ran` (`MIGRATION_OK`). Nenhuma migration antiga foi reexecutada e o `DatabaseSeeder` não foi chamado.
+- Somente `OfficialPublicDataSeeder` foi executado; uma segunda execução completa foi aprovada (`OFFICIAL_SEEDER_IDEMPOTENT_OK`), comprovando que a carga não duplica os registros.
+- A verificação SQL direta confirmou quatro editais públicos com quatro códigos distintos: `07/2026` em resultado, `11/2026` encerrado, `12/2026` aberto e `CHAMAMENTO-01/2026` aberto.
+- O banco contém 12 lotes, exatamente dois históricos oficiais (`193308-6` e `819340-1`), ambos fracassados e com localização aproximada; a categoria `templos-assistencia-social` existe uma única vez em modo `catalog` (`OFFICIAL_DATA_VERIFIED`).
 
 ## Planejamento aprovado em 11/09/2026
 

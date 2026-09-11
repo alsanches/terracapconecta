@@ -5,12 +5,12 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: imagem candidata validada em execução isolada; migration incremental está pendente e ainda não foi aplicada
-Última etapa validada: preflight da imagem candidata contra a configuração de produção
-Evidência: CANDIDATE_PREFLIGHT_OK; Laravel 13.30.1/PHP 8.4.25 em production, seis rotas /api/v1 presentes e somente 2026_09_11_120000_expand_public_notices_and_catalog_lots pendente
+Estado atual: migration incremental aplicada; dados oficiais ainda não carregados e aplicação ativa permanece na imagem anterior
+Última etapa validada: migration incremental de editais públicos e catálogo de lotes em produção
+Evidência: 2026_09_11_120000_expand_public_notices_and_catalog_lots executada em 104,50 ms e confirmada como batch 2 / Ran; MIGRATION_OK
 Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
 Ambiente: nova imagem disponível; app e queue continuam executando a imagem anterior 9a7b197; banco ainda não migrado
-Próxima ação: aplicar somente a migration incremental pendente usando a imagem candidata e confirmar seu estado como Ran
+Próxima ação: executar somente OfficialPublicDataSeeder com a imagem candidata e verificar a carga idempotente
 Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 ```
 
@@ -33,6 +33,7 @@ Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 - O preflight executou a imagem candidata em contêineres efêmeros sem dependências recriadas: Laravel 13.30.1, PHP 8.4.25, ambiente `production`, debug desativado e manutenção desativada.
 - A listagem de rotas confirmou as seis APIs esperadas em `/api/v1`, inclusive `notices`, `lots`, `regions` e `recommendations`.
 - `migrate:status` confirmou que todas as migrations anteriores estavam executadas e apenas `2026_09_11_120000_expand_public_notices_and_catalog_lots` estava pendente; nenhum dado foi alterado no preflight (`CANDIDATE_PREFLIGHT_OK`).
+- A migration incremental `2026_09_11_120000_expand_public_notices_and_catalog_lots` foi aplicada em 104,50 ms pela imagem candidata e confirmada no batch 2 como `Ran` (`MIGRATION_OK`). Nenhuma migration antiga foi reexecutada e o `DatabaseSeeder` não foi chamado.
 
 ## Planejamento aprovado em 11/09/2026
 

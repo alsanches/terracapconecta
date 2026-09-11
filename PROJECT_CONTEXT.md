@@ -5,13 +5,13 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: implementação local validada e publicada no GitHub; implantação na VPS aguardando a autenticação da sessão SSH do Codex
-Última etapa validada: usuário comprovou acesso SSH interativo ao host; saúde externa dos dois sistemas preservada
-Evidência: commits 5b7a51d e 2076e36 em origin/main; captura do prompt debian@srv1862758; Terracap /up e CAMP retornam HTTP 200
-Commit atual: 2076e36
-Ambiente: desenvolvimento local validado; produção anterior ativa na VPS compartilhada
-Próxima ação: usuário digitar a senha da chave na aba de terminal inferior do Codex; em seguida inventariar, gerar e validar backup PostgreSQL e registrar a imagem anterior
-Bloqueios: a sessão SSH iniciada pelo Codex aguarda a senha local da chave, que somente o usuário deve digitar
+Estado atual: implementação no GitHub; inventário de produção validado e preparação do backup em execução
+Última etapa validada: identificação dos quatro contêineres e da imagem ativa anterior
+Evidência: app saudável na imagem 9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d; fila, backup e PostgreSQL/PostGIS ativos; app exposto somente em 127.0.0.1:8011
+Commit atual: d2576f6
+Ambiente: produção anterior ativa na VPS compartilhada, sem alteração realizada nesta etapa
+Próxima ação: localizar o diretório Compose e registrar IDs/digests; depois gerar e validar backup PostgreSQL
+Bloqueios: Codex não controla o terminal externo; execução assistida pelo usuário com comandos curtos, sem compartilhar segredos
 ```
 
 ## Planejamento aprovado em 11/09/2026

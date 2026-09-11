@@ -5,14 +5,22 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: implementação concluída, versionada, publicada e validada; acesso temporário encerrado
-Última etapa validada: encerramento seguro do acesso de implantação e conferência externa final
-Evidência: duas chaves públicas temporárias removidas da VPS, chave rejeitada em nova tentativa, quatro arquivos de chave temporária removidos localmente e FINAL_EXTERNAL_CHECK_OK com Terracap/CAMP HTTP 200
+Estado atual: versão publicada permanece ativa; retirada temporária solicitada para vigorar até segunda-feira, 14/09/2026, às 08h de Brasília
+Última etapa validada: tentativa de acesso com a chave SSH normal confirmou que ela exige autenticação interativa; nenhuma alteração foi feita na VPS
+Evidência: `ssh -o BatchMode=yes campconecta` foi rejeitado com `Permission denied (publickey)` após a remoção segura da chave efêmera
 Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
 Ambiente: app e queue executam a nova imagem; PostgreSQL/PostGIS e backup mantêm os contêineres anteriores saudáveis
-Próxima ação: realizar o ensaio da apresentação com as quatro buscas, abrir um edital e simular um requerimento usando somente dados fictícios
-Bloqueios: nenhum
+Próxima ação: com o usuário autenticado em `ssh campconecta`, criar e verificar um timer transitório do systemd para reativar app/queue em 14/09/2026 às 08h BRT; somente depois parar app/queue e validar Terracap indisponível e CAMP HTTP 200
+Bloqueios: é necessária uma sessão SSH autenticada pelo usuário; nenhuma senha, chave ou segredo deve ser compartilhado no chat
 ```
+
+### Janela temporária solicitada em 11/09/2026
+
+- Objetivo: deixar apenas o Terracap Conecta indisponível até segunda-feira, 14/09/2026, às 08h no horário de Brasília.
+- Estratégia segura: programar primeiro a reativação automática no próprio servidor; conferir o timer; depois parar somente os contêineres `terracap-conecta-app-1` e `terracap-conecta-queue-1` pelo Compose de produção.
+- Não alterar Nginx global, CAMP Conecta, PostgreSQL/PostGIS, volumes, backups, migrations ou dados.
+- Critério de validação da retirada: Terracap deixa de responder normalmente, os contêineres de app/queue ficam parados, banco/backup permanecem ativos e `https://campconecta.tech/` continua em HTTP 200.
+- Critério de retomada: timer executa `docker compose up -d --no-deps app queue`; app volta a `healthy`, APIs e mapa respondem, e CAMP permanece em HTTP 200.
 
 ### Evidências da implantação em 11/09/2026
 

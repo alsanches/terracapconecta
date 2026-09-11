@@ -5,12 +5,12 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: backup e restauração isolada validados; preparação da nova imagem em execução
-Última etapa validada: restauração integral do backup em banco temporário e remoção desse banco
-Evidência: dump de 2,6 MB e SHA-256 444dfa6f2cb80618c0a4001165e580ef7526d9210b27ec42d4d8a3581b108836 restaurado com PostGIS 3.6.4, 35 RAs e 10 lotes; RESTORE_OK
-Commit atual: 064ade0
-Ambiente: produção anterior ativa na VPS compartilhada, sem alteração realizada nesta etapa
-Próxima ação: verificar o checkout da VPS, preparar o commit publicado e construir a imagem imutável sem ativá-la
+Estado atual: backup/restauração e checkout de produção validados; atualização controlada do checkout é o próximo passo
+Última etapa validada: checkout da VPS limpo, origem correta, release anterior e capacidade de disco confirmados
+Evidência: HEAD detached em 9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d; origin GitHub correto; sem alterações locais; APP_IMAGE_TAG igual ao release ativo; 64 GB livres
+Commit atual: 4e7d89c
+Ambiente: produção anterior ativa e íntegra; nenhum dado, contêiner ou serviço alterado nesta verificação
+Próxima ação: executar git fetch e checkout detached do SHA publicado; conferir arquivos e então construir a imagem imutável sem ativá-la
 Bloqueios: Codex não controla o terminal externo; execução assistida pelo usuário com comandos curtos, sem compartilhar segredos
 ```
 
@@ -22,6 +22,8 @@ Bloqueios: Codex não controla o terminal externo; execução assistida pelo usu
 - Backup anterior à migração: `/backups/terracap-conecta-predeploy-20260911T132458Z.dump`, 2,6 MB, SHA-256 `444dfa6f2cb80618c0a4001165e580ef7526d9210b27ec42d4d8a3581b108836`.
 - `pg_restore --list` aprovou o catálogo; restauração integral em `terracap_restore_check_20260911` aprovou PostGIS 3.6.4, 35 RAs e 10 lotes; o banco temporário foi removido automaticamente.
 - Nenhuma migration, seeder ou troca de imagem de produção havia sido executada até este ponto.
+- Checkout da VPS confirmado limpo, sem branch ativa (detached HEAD), no SHA `9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d`; `origin` aponta para o repositório oficial do projeto.
+- `.env.production` mantém `APP_IMAGE_TAG=9a7b1974dd2b4cb4d9e6da0ae6ba68cf099ba01d`; filesystem raiz possui 64 GB livres (33% utilizado).
 
 ## Planejamento aprovado em 11/09/2026
 

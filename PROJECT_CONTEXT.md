@@ -5,12 +5,12 @@ Atualizado em: 2026-09-11
 ## Retomada rápida
 
 ```text
-Estado atual: nova versão publicada e validada funcionalmente; falta identificar a versão com tag e remover o acesso SSH temporário
-Última etapa validada: validação pública, visual, responsiva e operacional após a ativação
-Evidência: HTTP_PATHS_OK, APIs com 4 editais/2 vigentes/12 lotes, mapa MapLibre com 35 RAs, catálogo religioso e requerimento aprovados, console limpo, CAMP HTTP 200, app/db saudáveis e queue/backup ativos
+Estado atual: nova versão publicada, validada e identificada por tag; falta somente remover o acesso SSH temporário
+Última etapa validada: criação e publicação da tag imutável da versão implantada
+Evidência: prod-2026-09-11.1 aponta para 231620a0cf72c705f9ea9c54092301bf24a34f02 e está publicada em origin
 Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
 Ambiente: app e queue executam a nova imagem; PostgreSQL/PostGIS e backup mantêm os contêineres anteriores saudáveis
-Próxima ação: criar e publicar a tag da versão implantada, registrar o marco e então remover as duas chaves SSH temporárias
+Próxima ação: remover da VPS as duas chaves públicas temporárias do Codex, excluir a chave privada temporária local e fazer a conferência final sem SSH
 Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 ```
 
@@ -45,6 +45,7 @@ Bloqueios: nenhum; acesso SSH temporário e exclusivo está funcional
 - A busca religiosa abriu a ficha histórica do item 27 com fonte oficial, situação fracassada, preço mensal e caução, sem pontuação. O requerimento abriu com foco no primeiro campo, gerou comprovante visual `SIM-...` usando apenas dados fictícios, informou ausência de envio/salvamento e voltou vazio após fechar e reabrir.
 - No viewport móvel de 390 x 844, o mapa permaneceu carregado, a ficha virou gaveta inferior e os quatro editais foram renderizados como cartões: cabeçalho da tabela oculto, cada linha em bloco e largura do documento sem overflow horizontal.
 - A checagem operacional confirmou app saudável, queue ativa, banco saudável e backup ativo, sem `exception`, `fatal`, `panic` ou falhas recentes nos logs. `https://campconecta.tech/` permaneceu com HTTP 200 e título `CAMP Conecta · Acesso`.
+- A tag anotada `prod-2026-09-11.1` foi criada sobre o SHA efetivamente implantado `231620a0cf72c705f9ea9c54092301bf24a34f02` e publicada em `origin` com a descrição desta evolução.
 
 ## Planejamento aprovado em 11/09/2026
 

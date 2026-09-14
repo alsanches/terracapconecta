@@ -8,7 +8,7 @@ Atualizado em: 2026-09-14
 Estado atual: vídeo profissional de apresentação produzido e validado; Terracap Conecta novamente disponível em produção
 Última etapa validada: geração, codificação e revisão visual do vídeo Full HD com narração masculina e legendas
 Evidência: MP4 H.264/AAC de 3min25,60s, 1920x1080, 25 fps, 15,7 MiB e SHA-256 `ad941cb35b794e35888596e35ae4259f1b5701c3bfa14da20e27fd6439441fb9`; produção respondeu HTTP 200 em 14/09/2026
-Commit atual: release de produção em `231620a0cf72c705f9ea9c54092301bf24a34f02`; scripts do vídeo aguardam o commit documental deste marco
+Commit atual: automação e contexto do vídeo em `369045a`; release de produção permanece em `231620a0cf72c705f9ea9c54092301bf24a34f02`
 Ambiente: vídeo gerado localmente a partir das telas públicas reais; nenhum dado de produção foi alterado
 Próxima ação: Alexandre assistir ao MP4 final e indicar somente eventuais ajustes de ritmo, texto, voz ou duração
 Bloqueios: nenhum
@@ -27,6 +27,7 @@ Bloqueios: nenhum
 - Conteúdo gravado em dez cenas: abertura; visão geral do mapa; seleção de Taguatinga e ficha do lote; ranking de coworking; catálogo de templos e assistência social; editais públicos; requerimento demonstrativo; acesso e módulos administrativos; integrações futuras; encerramento.
 - Segurança e comunicação: nenhum login foi realizado; nenhum dado pessoal real foi digitado; o requerimento usa somente informações fictícias e demonstra explicitamente que não há envio nem protocolo oficial.
 - Automação reprodutível criada em `scripts/video/generate-narration.ps1`, `scripts/video/record-presentation.mjs` e `scripts/video/build-presentation.ps1`.
+- Scripts, regras de exclusão do binário e contexto inicial deste marco versionados no commit `369045a` (`feat: produz video de apresentacao profissional`).
 - A gravação utiliza o site público de produção apenas para leitura e combina as telas reais com lâminas gráficas de apoio para os módulos que exigiriam autenticação.
 - Primeira narração, em velocidade mais lenta, ficou com aproximadamente 5min10s; a cadência foi ajustada para chegar a 3min25s sem remover conteúdo essencial.
 - Primeira gravação foi interrompida porque o canvas do MapLibre interceptava o clique no rótulo de Taguatinga; a automação passou a acionar os mesmos métodos públicos da interface e a segunda gravação concluiu as dez cenas.

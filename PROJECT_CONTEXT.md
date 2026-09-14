@@ -1,18 +1,38 @@
 # Terracap Conecta — contexto de continuidade
 
-Atualizado em: 2026-09-11
+Atualizado em: 2026-09-14
 
 ## Retomada rápida
 
 ```text
-Estado atual: Terracap Conecta temporariamente indisponível; reativação automática programada para segunda-feira, 14/09/2026, às 08h de Brasília
-Última etapa validada: parada controlada e verificação independente do isolamento em relação ao CAMP
-Evidência: app/queue do Terracap em `exited`, banco/backup ativos, Terracap HTTP 502 e CAMP HTTP 200; `RETIRADA_TEMPORARIA_OK` e `EXTERNAL_DOWNTIME_CHECK_OK`
-Commit atual: release candidato da VPS em 231620a0cf72c705f9ea9c54092301bf24a34f02; continuidade segue avançando em origin/main
-Ambiente: app e queue executam a nova imagem; PostgreSQL/PostGIS e backup mantêm os contêineres anteriores saudáveis
-Próxima ação: em 14/09/2026 após 08h, confirmar que o timer iniciou app/queue, app ficou `healthy`, Terracap voltou a HTTP 200 e CAMP permaneceu HTTP 200
-Bloqueios: nenhum; retomada automática está sob responsabilidade do timer ativo na própria VPS
+Estado atual: vídeo profissional de apresentação produzido e validado; Terracap Conecta novamente disponível em produção
+Última etapa validada: geração, codificação e revisão visual do vídeo Full HD com narração masculina e legendas
+Evidência: MP4 H.264/AAC de 3min25,60s, 1920x1080, 25 fps, 15,7 MiB e SHA-256 `ad941cb35b794e35888596e35ae4259f1b5701c3bfa14da20e27fd6439441fb9`; produção respondeu HTTP 200 em 14/09/2026
+Commit atual: release de produção em `231620a0cf72c705f9ea9c54092301bf24a34f02`; scripts do vídeo aguardam o commit documental deste marco
+Ambiente: vídeo gerado localmente a partir das telas públicas reais; nenhum dado de produção foi alterado
+Próxima ação: Alexandre assistir ao MP4 final e indicar somente eventuais ajustes de ritmo, texto, voz ou duração
+Bloqueios: nenhum
 ```
+
+## Vídeo de apresentação — validado em 14/09/2026
+
+- Objetivo: produzir, com base no roteiro aprovado, um vídeo de apresentação do Terracap Conecta usando as telas reais do sistema, narração masculina profissional em português do Brasil e legendas incorporadas.
+- Situação: `[VALIDADA]` geração completa, codificação técnica e revisão visual por quadros representativos.
+- Arquivo final local: `artifacts/terracap-video/Terracap-Conecta-Apresentacao.mp4`; a pasta `artifacts` é ignorada pelo Git para não versionar arquivos binários pesados.
+- Especificação final: duração de 3min25,60s; 1920x1080; proporção 16:9; 25 fps; vídeo H.264 High em `yuv420p`; áudio AAC mono; início rápido habilitado para reprodução pela web.
+- Tamanho: 16.439.529 bytes, aproximadamente 15,7 MiB.
+- Integridade: SHA-256 `ad941cb35b794e35888596e35ae4259f1b5701c3bfa14da20e27fd6439441fb9`.
+- Narração: voz masculina adulta `Microsoft Daniel`, idioma `pt-BR`, gerada localmente e normalizada para aproximadamente -16 LUFS; nenhum serviço externo de voz foi utilizado.
+- Legendas: sincronizadas por sentença e gravadas no próprio vídeo, com tamanho revisto para preservar a visualização das telas.
+- Conteúdo gravado em dez cenas: abertura; visão geral do mapa; seleção de Taguatinga e ficha do lote; ranking de coworking; catálogo de templos e assistência social; editais públicos; requerimento demonstrativo; acesso e módulos administrativos; integrações futuras; encerramento.
+- Segurança e comunicação: nenhum login foi realizado; nenhum dado pessoal real foi digitado; o requerimento usa somente informações fictícias e demonstra explicitamente que não há envio nem protocolo oficial.
+- Automação reprodutível criada em `scripts/video/generate-narration.ps1`, `scripts/video/record-presentation.mjs` e `scripts/video/build-presentation.ps1`.
+- A gravação utiliza o site público de produção apenas para leitura e combina as telas reais com lâminas gráficas de apoio para os módulos que exigiriam autenticação.
+- Primeira narração, em velocidade mais lenta, ficou com aproximadamente 5min10s; a cadência foi ajustada para chegar a 3min25s sem remover conteúdo essencial.
+- Primeira gravação foi interrompida porque o canvas do MapLibre interceptava o clique no rótulo de Taguatinga; a automação passou a acionar os mesmos métodos públicos da interface e a segunda gravação concluiu as dez cenas.
+- Revisão visual: mapa carregado, RA de Taguatinga isolada, nota de coworking, imóvel histórico, modal de edital, comprovante demonstrativo, acesso administrativo e telas finais foram conferidos em quadros extraídos; não foram observadas telas vazias, modais cortadas ou dados pessoais.
+- Continuidade operacional: o endereço público do Terracap Conecta respondeu HTTP 200 em 14/09/2026, confirmando a retomada após a indisponibilidade temporária do fim de semana.
+- Próxima ação exata: abrir o arquivo final, assistir do início ao fim e registrar qualquer ajuste desejado; se aprovado, copiar o MP4 para o canal de apresentação ou publicação escolhido.
 
 ### Janela temporária solicitada em 11/09/2026
 
